@@ -1,6 +1,7 @@
 '''
 访问url链接, 返回可以访问的url并做成书签，方便burpsuite一键开启
 '''
+import re
 import time
 import requests
 import concurrent.futures
@@ -23,6 +24,10 @@ def rsc(url):
             elif "限制" not in content and "无法正常工作" not in content and "认证失败" not in content and "window.wx" not in content and "请稍后再试" not in content:
                 if url not in otherList:
                     otherList.append(url)
+                    pattern = r"(https?://)|(:\d{1,5})"
+                    newipDomain = re.sub(pattern, "", url)
+                    if newipDomain not in newipsdomainsList:
+                        newipsdomainsList.append(newipDomain)
     except:
         pass
 
@@ -32,7 +37,7 @@ if __name__ == "__main__":
         pass
     with open('nginxPorts.txt', 'w') as file:
         pass
-    iis7List, nginxList, otherList = [], [], []
+    iis7List, nginxList, otherList, newipsdomainsList = [], [], [], []
     Datetime = str(int(time.time()))
     #创建书签
     with open('书签.html', 'w') as htmlFile:
@@ -52,6 +57,8 @@ if __name__ == "__main__":
         file.writelines(f'{ipPort}\n' for ipPort in nginxList)
     with open('IIS7Ports.txt', 'a') as file:
         file.writelines(f'{ipPort}\n' for ipPort in iis7List)
+    with open('nmapScan.txt', 'a') as file:
+        file.writelines(f'{newipDomain}\n' for newipDomain in newipsdomainsList)
     #书签完成
     with open('书签.html', 'a') as htmlFile:
         dlp = '</DL><p>\n'
