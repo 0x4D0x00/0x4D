@@ -1,3 +1,6 @@
+'''
+扫描端口, 返回可能存在的url链接
+'''
 import socket
 import time
 import concurrent.futures
