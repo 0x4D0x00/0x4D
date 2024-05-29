@@ -37,6 +37,6 @@ if __name__ == "__main__":
         # 批量提交任务给线程池
         for result in tqdm(executor.map(scanPorts, ipsList), total = len(ipsList)):
             pass
-        with open('scanPorts.txt', 'w') as file:
+        with open('scanPorts.txt', 'a') as file:
             file.writelines(f"http://{ipPort}\nhttps://{ipPort}\n" for ipPort in openportList)
         print("任务执行完成")
