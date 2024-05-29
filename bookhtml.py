@@ -17,7 +17,7 @@ def rsc(url):
             if "IIS7" in content:
                 if url not in iis7List:
                     iis7List.append(url)
-            elif "NGINX" in content:
+            elif "Welcome to nginx!" in content:
                 if url not in nginxList:
                     nginxList.append(url)
             elif "限制" not in content and "无法正常工作" not in content:
