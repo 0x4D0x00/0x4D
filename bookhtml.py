@@ -18,7 +18,7 @@ def rsc(url):
         if statusCode == 200:
             if "IIS7" in content:
                 with open('IIS7Ports.txt', 'a') as file:
-                file.write(url + '\n')
+                    file.write(url + '\n')
             elif "NGINX" in content:
                 with open('nginxPorts.txt', 'a') as file:
                     file.write(url + '\n')
@@ -30,6 +30,11 @@ def rsc(url):
         pass
 
 if __name__ == "__main__":
+    #清空文档
+    with open('IIS7Ports.txt', 'w') as file:
+        pass
+    with open('nginxPorts.txt', 'w') as file:
+        pass
     #创建书签
     with open('书签.html', 'w') as htmlFile:
         st = f'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     DO NOT EDIT! -->\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n    <DT><H3 ADD_DATE="2716597092" LAST_MODIFIED="0" PERSONAL_TOOLBAR_FOLDER="true">BOOK</H3>\n    <DL><p>\n    </DL><p>\n'
