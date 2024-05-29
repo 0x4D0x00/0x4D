@@ -36,7 +36,7 @@ def scanPorts(ip):
     openportsList = [openportsQueue.get() for _ in range(openportsQueue.qsize())]
     return openportsList
     
-def writeReport(ipPort):
+def writeReport(ipsPorts):
     
     portsFiles = {
         "21":"21ftpPorts.txt",
@@ -62,14 +62,16 @@ def writeReport(ipPort):
         "9200":"9200elastcsearchPorts.txt"
         }
 
-    ip, port = ipPort.split(":")
+    ip, port = ipsPorts.split(":")
+    port = str(port)
     if port in portsFiles:
         fileName = portsFiles[port]
         with open(fileName, 'a') as file:
             file.write(f"{ip}:{port}\n")
-    else:        
-        with open('urlPorts.txt', 'a') as file:
-            file.write(f"http://{ipPort}\nhttps://{ipPort}\n")
+    else:
+        if ipsPorts not in urlsList:
+            urlsList.append(f"http://{ipsPorts}")
+            urlsList.append(f"https://{ipsPorts}")
 
 def clearingGarbages(openportsList, threshold):
     ipCounts = {}
@@ -96,13 +98,17 @@ if __name__ == "__main__":
     # 创建线程池
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
-        openportsList = list(tqdm(executor.map(scanPorts, ipsList), total = len(ipsList)))
-    #清楚垃圾
+        resultList = list(tqdm(executor.map(scanPorts, ipsList), total = len(ipsList)))
+    # 合并所有IP的开放端口列表（如果需要）
+    openportsList = [ipPort for ipsPorts in resultList for ipPort in ipsPorts]
+    #清除垃圾
     newopenportsList = clearingGarbages(openportsList, 100)
     print(" | 第 2 任务进度 |")
+    urlsList = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
         for result in tqdm(executor.map(writeReport, newopenportsList), total = len(newopenportsList)):
             pass
-            
+    with open('urlPorts.txt', 'a') as file:
+        file.writelines(f"{ipPort}\n" for ipPort in urlsList)
     print("任务执行完成")
