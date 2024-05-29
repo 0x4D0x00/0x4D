@@ -14,16 +14,23 @@ def pingipDomain(ipDomain):
     #response = subprocess.run(['ping', '-c', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)
     if 'ms' in str(response):
         if 'cname' in str(response):
-            cnameipsdomainsList.append(ipDomain)
+            if ipDomain not in cnameipsdomainsList:
+                cnameipsdomainsList.append(ipDomain)
         else:
             ipAddress = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', str(response))
             ipAddress = ipAddress.group()
-            ipsaddressList.append(ipAddress) 
-            onlineipsdomainsList.append(ipDomain)
+            if ipAddress not in ipsaddressList:
+                ipsaddressList.append(ipAddress)
+            if ipDomain not in onlineipsdomainsList:
+                onlineipsdomainsList.append(ipDomain)
             with open('log.txt', 'a') as file:
-                file.writelines(f"{ipDomain}:{ipAddress}\n" for ip in ipsaddressList)
+                file.write(f"{ipDomain}:{ipAddress}\n")
+                if ipAddress != ipDomain:
+                    with open('urlPorts.txt', 'a') as file:
+                        file.write(f"http://{ipDomain}:80\nhttps://{ipDomain}:443\n")
     else:
-        offlineipsdomainsList.append(ipDomain)
+        if ipDomain not in offlineipsdomainsList:
+            offlineipsdomainsList.append(ipDomain)
 
 if __name__ == "__main__":
     #读取文件
@@ -35,6 +42,10 @@ if __name__ == "__main__":
     print(timesTamp)
     print(" | 主线任务进度 |")
     cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList = [], [], [], []
+    with open('urlPorts.txt', 'w') as file:
+        pass
+    with open('log.txt', 'w') as file:
+        pass
     # 创建线程池
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
