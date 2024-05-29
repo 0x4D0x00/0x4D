@@ -5,8 +5,6 @@ import subprocess
 import concurrent.futures
 import time
 import re
-global threads
-threadsList = []
 
 def pingipDomain(ipDomain):
     #ping并返回结果
@@ -35,7 +33,7 @@ if __name__ == "__main__":
     print("创建任务")
     cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList = [], [], [], []
     # 创建线程池
-    threads = 1
+    threads = 0
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
         for result in executor.map(pingipDomain, ipsdomainsList):
