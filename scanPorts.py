@@ -1,10 +1,9 @@
 '''
-扫描端口, 返回可能存在的url链接
+扫描端口, 返回可能存在的url链接。
 '''
 import socket
 import time
 import concurrent.futures
-openportList = []
 
 def scanPorts(ip):
         
@@ -30,9 +29,10 @@ if __name__ == "__main__":
     #创建时间
     timesTamp = str(int(time.time()))
     print(timesTamp)
-    print("创建线程")
+    print("创建任务")
+    openportList = []
     # 创建线程池
-    threads = 1
+    threads = 0
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
         for result in executor.map(scanPorts, ipsList):
