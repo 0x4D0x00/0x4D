@@ -1,5 +1,5 @@
 '''
-访问url链接, 返回可以访问的url并做成书签，方便burpsuite一键开启
+访问url链接, 返回可以访问的url并做成书签，方便burpsuite一键开启，以及返回一张方便nmap和goby等扫描工具扫描的txt文件
 '''
 import re
 import time
