@@ -20,7 +20,7 @@ def rsc(url):
             elif "Welcome to nginx!" in content:
                 if url not in nginxList:
                     nginxList.append(url)
-            elif "限制" not in content and "无法正常工作" not in content and "认证失败" not in content:
+            elif "限制" not in content and "无法正常工作" not in content and "认证失败" not in content and "window.wx" not in content and "请稍后再试" not in content:
                 if url not in otherList:
                     otherList.append(url)
     except:
