@@ -3,6 +3,7 @@ concurrent.futures
 subprocess
 requests
 socket
+queue
 
 pingipsDomains
 这个工具主要作用是拿到很多ip或域名之后确定哪些是通的，哪些是有云防御的，加速批量渗透测试效率。你需要将存放ip和域名的txt文件改名为ipsDomains.txt然后直接运行py文件。
