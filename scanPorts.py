@@ -7,8 +7,6 @@ import concurrent.futures
 from tqdm import tqdm
 import queue
 
-#openportsList = []
-
 def scanPorts(ip):
         
     portList = [i for i in range(1,65536)]
@@ -20,7 +18,6 @@ def scanPorts(ip):
         try:
             r = s.connect_ex((ip, port))
             if r == 0:#判断是否开启
-                #openportsList.append(f"{ip}:{port}")
                 openportsQueue.put(f"{ip}:{port}")# 将结果放入队列
         except:
             pass
