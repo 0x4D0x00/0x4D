@@ -4,12 +4,14 @@
 import time
 import requests
 import concurrent.futures
-
-Datetime = str(int(time.time()))
+from tqdm import tqdm
 
 def rsc(url):
+
+    Datetime = str(int(time.time()))
+    
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout = 5)
         statusCode = response.status_code
         #print(statusCode)
         if statusCode == 200:
@@ -30,13 +32,12 @@ if __name__ == "__main__":
     with open('scanPorts.txt', 'r') as scanFile:
         urlList = [url.strip() for url in scanFile]
     #获取可访问页面
-    threads = 0
+    print(" | 主线任务进度 |")
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        for result in executor.map(rsc, urlList):
-            threads += 1
-            print("任务: No." +str(threads)+" 执行完成...请等待")
+        for result in tqdm(executor.map(rsc, urlList), total=len(urlList)):
+            pass
     #书签完成
     with open('书签.html', 'a') as htmlFile:
         dlp = '</DL><p>\n'
         htmlFile.writelines(dlp)
-    print('书签已完成')
+    print('任务执行完成')
