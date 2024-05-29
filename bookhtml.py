@@ -7,8 +7,6 @@ import concurrent.futures
 from tqdm import tqdm
 
 def rsc(url):
-
-    Datetime = str(int(time.time()))
     
     try:
         response = requests.get(url, timeout = 5)
@@ -17,15 +15,14 @@ def rsc(url):
         #print(statusCode)
         if statusCode == 200:
             if "IIS7" in content:
-                with open('IIS7Ports.txt', 'a') as file:
-                    file.write(url + '\n')
+                if url not in iis7List:
+                    iis7List.append(url)
             elif "NGINX" in content:
-                with open('nginxPorts.txt', 'a') as file:
-                    file.write(url + '\n')
+                if url not in nginxList:
+                    nginxList.append(url)
             elif "限制" not in content and "无法正常工作" not in content:
-                with open('书签.html', 'a') as htmlFile:
-                    dtA = f'	<DT><A HREF="{url}" ADD_DATE={Datetime}">{url}</A>\n'
-                    htmlFile.write(dtA)
+                if url not in otherList:
+                    otherList.append(url)
     except:
         pass
 
@@ -35,6 +32,8 @@ if __name__ == "__main__":
         pass
     with open('nginxPorts.txt', 'w') as file:
         pass
+    iis7List, nginxList, otherList = [], [], []
+    Datetime = str(int(time.time()))
     #创建书签
     with open('书签.html', 'w') as htmlFile:
         st = f'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     DO NOT EDIT! -->\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n    <DT><H3 ADD_DATE="2716597092" LAST_MODIFIED="0" PERSONAL_TOOLBAR_FOLDER="true">BOOK</H3>\n    <DL><p>\n    </DL><p>\n'
@@ -47,6 +46,12 @@ if __name__ == "__main__":
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for result in tqdm(executor.map(rsc, urlsList), total=len(urlsList)):
             pass
+    with open('书签.html', 'a') as file:
+        file.writelines(f'	<DT><A HREF="{url}" ADD_DATE={Datetime}">{url}</A>\n' for url in otherList)
+    with open('nginxPorts.txt', 'a') as file:
+        file.writelines(f'{ipPort}\n' for ipPort in nginxList)
+    with open('IIS7Ports.txt', 'a') as file:
+        file.writelines(f'{ipPort}\n' for ipPort in iis7List)
     #书签完成
     with open('书签.html', 'a') as htmlFile:
         dlp = '</DL><p>\n'
