@@ -26,8 +26,9 @@ def pingipDomain(ipDomain):
             with open('log.txt', 'a') as file:
                 file.write(f"{ipDomain}:{ipAddress}\n")
                 if ipAddress != ipDomain:
-                    with open('urlPorts.txt', 'a') as file:
-                        file.write(f"http://{ipDomain}:80\nhttps://{ipDomain}:443\n")
+                    if ipDomain not in urlsList:
+                        urlsList.append(f"http://{ipDomain}:80")
+                        urlsList.append(f"https://{ipDomain}:443")
     else:
         if ipDomain not in offlineipsdomainsList:
             offlineipsdomainsList.append(ipDomain)
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     timesTamp = str(int(time.time()))
     print(timesTamp)
     print(" | 主线任务进度 |")
-    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList = [], [], [], []
+    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, urlsList = [], [], [], [], []
     with open('urlPorts.txt', 'w') as file:
         pass
     with open('log.txt', 'w') as file:
@@ -59,4 +60,6 @@ if __name__ == "__main__":
             file.writelines(f"{ip}\n" for ip in cnameipsdomainsList)
         with open('offlineipsDomains.txt', 'w') as file:
             file.writelines(f"{ip}\n" for ip in offlineipsdomainsList)
+        with open('urlPorts.txt', 'w') as file:
+            file.writelines(f"{url}\n" for url in urlsList)
         print("任务执行完成")
