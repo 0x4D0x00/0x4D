@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # 创建线程池
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
-        for result in tqdm(executor.map(scanPorts, ipsList), total = len(ipsList)*65535):
+        for result in tqdm(executor.map(scanPorts, ipsList), total = len(ipsList)):
             pass
         with open('scanPorts.txt', 'w') as file:
             file.writelines(f"http://{ipPort}\nhttps://{ipPort}\n" for ipPort in openportList)
