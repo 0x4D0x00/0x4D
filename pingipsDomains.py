@@ -1,14 +1,17 @@
 '''
 ping ip 或 域名, 返回在线ip
 '''
+import re
+import time
 import subprocess
 import concurrent.futures
-import time
-import re
+from tqdm import tqdm
 
 def pingipDomain(ipDomain):
     #ping并返回结果
-    response = subprocess.run(['ping', '-n', '2', ipDomain], stdout=subprocess.PIPE, text=True, shell=True)
+    response = subprocess.run(['ping', '-n', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)
+    #如果你是linux用户,请使用-c
+    #response = subprocess.run(['ping', '-c', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)
     if 'ms' in str(response):
         if 'cname' in str(response):
             cnameipsdomainsList.append(ipDomain)
@@ -30,22 +33,17 @@ if __name__ == "__main__":
     #创建时间
     timesTamp = str(int(time.time()))
     print(timesTamp)
-    print("创建任务")
+    print(" | 主线任务进度 |")
     cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList = [], [], [], []
     # 创建线程池
-    threads = 0
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
-        for result in executor.map(pingipDomain, ipsdomainsList):
-            threads += 1
-            print("任务: No." +str(threads)+" 执行完成...请等待")
-        print("总执行任务数量: "+str(threads))
+        for result in tqdm(executor.map(pingipDomain, ipsdomainsList), total=len(ipsdomainsList)):
+            pass
         with open('onlineipsDomains.txt', 'w') as file:
             file.writelines(f"{ip}\n" for ip in onlineipsdomainsList)
-        print("在线ipsDomains已写入完成")
         with open('onlineips.txt', 'w') as file:
             file.writelines(f"{ip}\n" for ip in ipsaddressList)
-        print("在线ips已写入完成")
         with open('cnameipsDomains.txt', 'w') as file:
             file.writelines(f"{ip}\n" for ip in cnameipsdomainsList)
         with open('offlineipsDomains.txt', 'w') as file:
