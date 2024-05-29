@@ -1,3 +1,6 @@
+'''
+访问url链接, 返回可以访问的url并做成书签，方便burpsuite一键开启
+'''
 import time
 import requests
 import concurrent.futures
