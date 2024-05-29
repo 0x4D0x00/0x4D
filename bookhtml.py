@@ -30,7 +30,7 @@ if __name__ == "__main__":
     with open('scanPorts.txt', 'r') as scanFile:
         urlList = [url.strip() for url in scanFile]
     #获取可访问页面
-    threads = 1
+    threads = 0
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for result in executor.map(rsc, urlList):
             threads += 1
