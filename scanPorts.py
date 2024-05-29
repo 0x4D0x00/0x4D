@@ -4,6 +4,7 @@
 import socket
 import time
 import concurrent.futures
+from tqdm import tqdm
 
 def scanPorts(ip):
         
@@ -29,15 +30,13 @@ if __name__ == "__main__":
     #创建时间
     timesTamp = str(int(time.time()))
     print(timesTamp)
-    print("创建任务")
+    print(" | 主线任务进度 |")
     openportList = []
     # 创建线程池
-    threads = 0
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
-        for result in executor.map(scanPorts, ipsList):
-            threads += 1
-            print("任务: No." +str(threads)+" 执行完成...请等待")
+        for result in tqdm(executor.map(scanPorts, ipsList), total = len(ipsList)*65535):
+            pass
         with open('scanPorts.txt', 'w') as file:
             file.writelines(f"http://{ipPort}\nhttps://{ipPort}\n" for ipPort in openportList)
-        print("端口扫描已完成")
+        print("任务执行完成")
