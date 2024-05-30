@@ -49,14 +49,14 @@ if __name__ == "__main__":
             pass
     with open('书签.html', 'a') as file:
         file.writelines(f'	<DT><A HREF="{url}" ADD_DATE={Datetime}">{url}</A>\n' for url in otherList)
+    #书签完成
+    with open('书签.html', 'a') as htmlFile:
+        dlp = '</DL><p>\n'
+        htmlFile.write(dlp)
     with open('nginxPorts.txt', 'w') as file:
         file.writelines("\n".join(nginxList))
     with open('IIS7Ports.txt', 'w') as file:
         file.writelines("\n".join(iis7List))
     with open('nmapScan.txt', 'w') as file:
         file.writelines("\n".join(newipsdomainsList))
-    #书签完成
-    with open('书签.html', 'a') as htmlFile:
-        dlp = '</DL><p>\n'
-        htmlFile.write(dlp)
     print('任务执行完成')
