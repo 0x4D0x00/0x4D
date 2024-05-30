@@ -9,7 +9,7 @@ import queue
 
 def scanPorts(ip):
         
-    portList = [i for i in range(1,65536)]
+    portList = [i for i in range(1,655)]
     openportsQueue = queue.Queue()
     
     def sanner(port):
@@ -58,13 +58,14 @@ def writeReport(ipsPorts):
         "9000":"9000fcgiPorts.txt",
         "9200":"9200elastcsearchPorts.txt"
         }
-
+    
     ip, port = ipsPorts.split(":")
+    ip = str(ip)
     port = str(port)
     if port in portsFiles:
         fileName = portsFiles[port]
-        with open(fileName, 'a') as file:
-            file.write(f"{ip}:{port}\n")
+        #暂时不使用fileName
+        highriskPortsList.append(f"{ip}:{port}")
     else:
         if ipsPorts not in urlsList:
             urlsList.append(f"http://{ipsPorts}")
@@ -78,16 +79,31 @@ def clearingGarbages(openportsList, threshold):
 
     # 过滤掉IP出现次数大于阈值的项
     newopenportsList = list(set([ipPort for ipPort in openportsList if ipCounts[ipPort.split(":")[0]] <= threshold]))
+    
     garbagesList = list(set([ipPort for ipPort in openportsList if ipCounts[ipPort.split(":")[0]] >= threshold]))
+
+    for ipPort in garbagesList:
+        ip, _ = ipPort.split(":")
+        if ip not in temporaryList:
+            temporaryList.append(ip)
+    
     with open("garbages.txt", 'w') as file:
-        file.writelines(f"{ipPort}\n" for ipPort in garbagesList)
+        file.writelines("\n".join(garbagesList))
+    
     return newopenportsList
 
 if __name__ == "__main__":
     #读取文件
-    fileName = 'onlineips.txt'
-    with open(fileName, 'r') as file:
-        ipsList = list(set(line.strip() for line in file if line.strip()))
+    with open('onlineIPs.txt', 'r') as file:
+        ripsList = list(set(line.strip() for line in file if line.strip()))
+    with open('onlineDomains.txt', 'r') as file:
+        rdomainsList = list(set(line.strip() for line in file if line.strip()))
+    with open('domainsbundledIps.txt', 'r') as file:
+        rdomainsbundledIpsList = list(set(line.strip() for line in file if line.strip()))
+    #刷新
+    with open('highriskPorts.txt', 'w') as file:
+        pass
+    temporaryList, urlsList, highriskPortsList = [], [], []
     #创建时间
     timesTamp = str(int(time.time()))
     print(timesTamp)
@@ -95,17 +111,30 @@ if __name__ == "__main__":
     # 创建线程池
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
-        resultList = list(tqdm(executor.map(scanPorts, ipsList), total = len(ipsList)))
+        resultList = list(tqdm(executor.map(scanPorts, ripsList), total = len(ripsList)))
     # 合并所有IP的开放端口列表（如果需要）
     openportsList = [ipPort for ipsPorts in resultList for ipPort in ipsPorts]
     #清除垃圾
     newopenportsList = clearingGarbages(openportsList, 100)
     print(" | 第 2 任务进度 |")
-    urlsList = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
         for result in tqdm(executor.map(writeReport, newopenportsList), total = len(newopenportsList)):
             pass
-    with open('urlPorts.txt', 'a') as file:
-        file.writelines(f"{ipPort}\n" for ipPort in urlsList)
+    #创建字典，存储映射    
+    ipDomainMap = {ip: domain for domain, ip in (entry.split(':') for entry in rdomainsbundledIpsList)}
+    # 过滤temporaryList中的IP，找出它们对应的域名，并从rdomainsList中删除这些域名
+    for ip in temporaryList:
+        if ip in ipDomainMap:
+            domain = ipDomainMap[ip]
+            if domain in rdomainsList:
+                rdomainsList.remove(domain)
+    for domain in rdomainsList:
+        if domain not in urlsList:
+            urlsList.append(f"http://{domain}")
+            urlsList.append(f"https://{domain}")          
+    with open('urlPorts.txt', 'w') as file:
+        file.writelines("\n".join(urlsList))
+    with open('highriskPorts.txt', 'w') as file:
+        file.write("\n".join(highriskPortsList))
     print("任务执行完成")
