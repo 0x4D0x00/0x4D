@@ -9,9 +9,11 @@ import queue
 
 def scanPorts(ip):
 
+    #####################################################
     #定义扫描端口数量（暂时65535个，改变数字可自定义范围）
     portList = [i for i in range(1,65536)]
-
+    #####################################################
+    
     openportsQueue = queue.Queue()
     
     def sanner(port):
@@ -111,6 +113,7 @@ if __name__ == "__main__":
     # 创建时间
     timesTamp = str(int(time.time()))
     print(timesTamp)
+    
     print(" | 第 1 任务进度 |")
     # 创建线程池
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -118,8 +121,12 @@ if __name__ == "__main__":
         resultList = list(tqdm(executor.map(scanPorts, ripsList), total = len(ripsList)))
     # 合并所有IP的开放端口列表（如果需要）
     openportsList = [ipPort for ipsPorts in resultList for ipPort in ipsPorts]
-    # 清除垃圾
+    
+    ###############################################################
+    # 清除垃圾（阈值设置100：超过100个端口的ip将被记录在垃圾数据中）
     newopenportsList = clearingGarbages(openportsList, 100)
+    ###############################################################
+    
     print(" | 第 2 任务进度 |")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
