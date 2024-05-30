@@ -133,7 +133,7 @@ if __name__ == "__main__":
         if domain not in urlsList:
             urlsList.append(f"http://{domain}")
             urlsList.append(f"https://{domain}")          
-    with open('urlPorts.txt', 'w') as file:
+    with open('urlsList.txt', 'w') as file:
         file.writelines("\n".join(urlsList))
     with open('highriskPorts.txt', 'w') as file:
         file.write("\n".join(highriskPortsList))
