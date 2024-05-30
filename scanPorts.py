@@ -8,8 +8,10 @@ from tqdm import tqdm
 import queue
 
 def scanPorts(ip):
-        
-    portList = [i for i in range(1,655)]
+
+    #定义扫描端口数量（暂时65535个，改变数字可自定义范围）
+    portList = [i for i in range(1,65536)]
+
     openportsQueue = queue.Queue()
     
     def sanner(port):
@@ -77,9 +79,10 @@ def clearingGarbages(openportsList, threshold):
         ip, _ = ipPort.split(":")  # 只获取IP部分
         ipCounts[ip] = ipCounts.get(ip, 0) + 1
 
-    # 过滤掉IP出现次数大于阈值的项
+    # 过滤掉IP出现次数大于阈值的对象
     newopenportsList = list(set([ipPort for ipPort in openportsList if ipCounts[ipPort.split(":")[0]] <= threshold]))
-    
+
+    # 记录垃圾内容
     garbagesList = list(set([ipPort for ipPort in openportsList if ipCounts[ipPort.split(":")[0]] >= threshold]))
 
     for ipPort in garbagesList:
@@ -93,18 +96,19 @@ def clearingGarbages(openportsList, threshold):
     return newopenportsList
 
 if __name__ == "__main__":
-    #读取文件
+    
+    # 读取文件
     with open('onlineIPs.txt', 'r') as file:
         ripsList = list(set(line.strip() for line in file if line.strip()))
     with open('onlineDomains.txt', 'r') as file:
         rdomainsList = list(set(line.strip() for line in file if line.strip()))
     with open('domainsbundledIps.txt', 'r') as file:
         rdomainsbundledIpsList = list(set(line.strip() for line in file if line.strip()))
-    #刷新
+    # 刷新
     with open('highriskPorts.txt', 'w') as file:
         pass
     temporaryList, urlsList, highriskPortsList = [], [], []
-    #创建时间
+    # 创建时间
     timesTamp = str(int(time.time()))
     print(timesTamp)
     print(" | 第 1 任务进度 |")
@@ -114,14 +118,14 @@ if __name__ == "__main__":
         resultList = list(tqdm(executor.map(scanPorts, ripsList), total = len(ripsList)))
     # 合并所有IP的开放端口列表（如果需要）
     openportsList = [ipPort for ipsPorts in resultList for ipPort in ipsPorts]
-    #清除垃圾
+    # 清除垃圾
     newopenportsList = clearingGarbages(openportsList, 100)
     print(" | 第 2 任务进度 |")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # 批量提交任务给线程池
         for result in tqdm(executor.map(writeReport, newopenportsList), total = len(newopenportsList)):
             pass
-    #创建字典，存储映射    
+    # 创建字典，存储映射    
     ipDomainMap = {ip: domain for domain, ip in (entry.split(':') for entry in rdomainsbundledIpsList)}
     # 过滤temporaryList中的IP，找出它们对应的域名，并从rdomainsList中删除这些域名
     for ip in temporaryList:
@@ -132,7 +136,8 @@ if __name__ == "__main__":
     for domain in rdomainsList:
         if domain not in urlsList:
             urlsList.append(f"http://{domain}")
-            urlsList.append(f"https://{domain}")          
+            urlsList.append(f"https://{domain}")
+    # 输出内容
     with open('urlsList.txt', 'w') as file:
         file.writelines("\n".join(urlsList))
     with open('highriskPorts.txt', 'w') as file:
