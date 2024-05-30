@@ -16,27 +16,23 @@ def rsc(url):
         #print(statusCode)
         if statusCode == 200:
             if "IIS7" in content:
-                if url not in iis7List:
-                    iis7List.append(url)
+                if f"{url}" not in iis7List:
+                    iis7List.append(f"{url}")
             elif "Welcome to nginx!" in content:
-                if url not in nginxList:
-                    nginxList.append(url)
+                if f"{url}" not in nginxList:
+                    nginxList.append(f"{url}")
             elif "限制" not in content and "无法正常工作" not in content and "认证失败" not in content and "window.wx" not in content and "请稍后再试" not in content:
-                if url not in otherList:
-                    otherList.append(url)
+                if f"{url}" not in otherList:
+                    otherList.append(f"{url}")
                     pattern = r"(https?://)|(:\d{1,5})"
                     newipDomain = re.sub(pattern, "", url)
-                    if newipDomain not in newipsdomainsList:
-                        newipsdomainsList.append(newipDomain)
+                    if f"{newipDomain}" not in newipsdomainsList:
+                        newipsdomainsList.append(f"{newipDomain}")
     except:
         pass
 
 if __name__ == "__main__":
-    #清空文档
-    with open('IIS7Ports.txt', 'w') as file:
-        pass
-    with open('nginxPorts.txt', 'w') as file:
-        pass
+    #刷新
     iis7List, nginxList, otherList, newipsdomainsList = [], [], [], []
     Datetime = str(int(time.time()))
     #创建书签
@@ -44,7 +40,7 @@ if __name__ == "__main__":
         st = f'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     DO NOT EDIT! -->\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n    <DT><H3 ADD_DATE="2716597092" LAST_MODIFIED="0" PERSONAL_TOOLBAR_FOLDER="true">BOOK</H3>\n    <DL><p>\n    </DL><p>\n'
         htmlFile.writelines(st)
     #获取url
-    with open('urlPorts.txt', 'r') as scanFile:
+    with open('urlsList.txt', 'r') as scanFile:
         urlsList = list(set([url.strip() for url in scanFile if url.strip()]))
     #获取可访问页面
     print(" | 主线任务进度 |")
@@ -53,12 +49,12 @@ if __name__ == "__main__":
             pass
     with open('书签.html', 'a') as file:
         file.writelines(f'	<DT><A HREF="{url}" ADD_DATE={Datetime}">{url}</A>\n' for url in otherList)
-    with open('nginxPorts.txt', 'a') as file:
-        file.writelines(f'{ipPort}\n' for ipPort in nginxList)
-    with open('IIS7Ports.txt', 'a') as file:
-        file.writelines(f'{ipPort}\n' for ipPort in iis7List)
-    with open('nmapScan.txt', 'a') as file:
-        file.writelines(f'{newipDomain}\n' for newipDomain in newipsdomainsList)
+    with open('nginxPorts.txt', 'w') as file:
+        file.writelines("\n".join(nginxList))
+    with open('IIS7Ports.txt', 'w') as file:
+        file.writelines("\n".join(iis7List))
+    with open('nmapScan.txt', 'w') as file:
+        file.writelines("\n".join(newipsdomainsList))
     #书签完成
     with open('书签.html', 'a') as htmlFile:
         dlp = '</DL><p>\n'
