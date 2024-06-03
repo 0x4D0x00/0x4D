@@ -37,8 +37,11 @@ if __name__ == "__main__":
     
     #读取文件
     fileName = 'ipsDomains.txt'
-    with open(fileName, 'r') as file:
-        ipsdomainsList = list(set(line.strip() for line in file if line.strip()))
+    try:
+        with open(fileName, 'r') as file:
+            ipsdomainsList = list(set(line.strip() for line in file if line.strip()))
+    except:
+        print('没有ipsDomains.txt文件')
     #创建时间
     timesTamp = str(int(time.time()))
     print(timesTamp)
