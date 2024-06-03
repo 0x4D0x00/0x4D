@@ -100,12 +100,15 @@ def clearingGarbages(openportsList, threshold):
 if __name__ == "__main__":
     
     # 读取文件
-    with open('onlineIPs.txt', 'r') as file:
-        ripsList = list(set(line.strip() for line in file if line.strip()))
-    with open('onlineDomains.txt', 'r') as file:
-        rdomainsList = list(set(line.strip() for line in file if line.strip()))
-    with open('domainsbundledIps.txt', 'r') as file:
-        rdomainsbundledIpsList = list(set(line.strip() for line in file if line.strip()))
+    try:
+        with open('onlineIPs.txt', 'r') as file:
+            ripsList = list(set(line.strip() for line in file if line.strip()))
+        with open('onlineDomains.txt', 'r') as file:
+            rdomainsList = list(set(line.strip() for line in file if line.strip()))
+        with open('domainsbundledIps.txt', 'r') as file:
+            rdomainsbundledIpsList = list(set(line.strip() for line in file if line.strip()))
+    except:
+        pass
     # 刷新
     with open('highriskPorts.txt', 'w') as file:
         pass
