@@ -118,7 +118,6 @@ if __name__ == "__main__":
                         #print(f"{hostName} 登录成功")
                         pass
                     else:
-                        tqdm
                         #print(f"{hostName} 登录失败")
                         pass
                 except Exception as e:
