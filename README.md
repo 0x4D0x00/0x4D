@@ -1,5 +1,5 @@
 本工具可以集成，暂时懒得集成，再写一些比较好用的功能再集成。
-使用本工具需要执行pip install -r requirements.txt
+使用本工具需要下载并安装pip install -r requirements.txt
 
 pingipsDomains
 这款工具主要作用是拿到很多ip或域名之后确定哪些是通的，哪些是有云防御的，加速批量渗透测试效率。你需要将存放ip和域名的txt文件改名为ipsDomains.txt然后直接运行py文件。
