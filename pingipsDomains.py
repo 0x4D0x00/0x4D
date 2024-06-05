@@ -54,17 +54,17 @@ if __name__ == "__main__":
     except:
         print('没有l3Domains.txt文件')
     for domain in cnameipsdomainsList:# 尝试 bypass cname 域名
-        retrievalL3 = re.search(r'[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z]{2,}', domain)
-        if domain == retrievalL3:
+        try:
             retrievalL2 = re.search(r'\.[a-zA-Z0-9]{2,}\.[a-zA-Z]{2,}', domain)
             domain = retrievalL2.group()[1:]
-            if f"{domain}" not in newDomainsList:
-                newDomainsList = append.(f"{domain}")
-        else:
-            for l3domain in l3DomainsList:
-                domain = l3domain + "." + domain
+            if domain:
                 if f"{domain}" not in newDomainsList:
                     newDomainsList = append.(f"{domain}")
+        except:
+            for l3domain in l3DomainsList:
+                newdomain = f"{l3domain}" + "." + f"{domain}"
+                if f"{newdomain}" not in newDomainsList:
+                    newDomainsList = append.(f"{newdomain}")
     cnameipsdomainsList = []# 重置记录
     with concurrent.futures.ThreadPoolExecutor() as executor:# 创建线程池
         for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):# 批量提交任务给线程池
