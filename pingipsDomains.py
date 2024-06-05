@@ -10,8 +10,7 @@ from tqdm import tqdm
 def pingipDomain(ipDomain):
 
     try:
-        #ping并返回结果,如果你是Linux用户,请将-n改为-c
-        response = subprocess.run(['ping', '-n', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)
+        response = subprocess.run(['ping', '-n', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)# ping并返回结果,如果你是Linux用户,请将-n改为-c
         if 'ms' in str(response):
             if 'cname' in str(response):
                 if f"{ipDomain}" not in cnameipsdomainsList:
@@ -35,49 +34,41 @@ def pingipDomain(ipDomain):
     
 if __name__ == "__main__":
     
-    #读取文件
-    fileName = 'ipsDomains.txt'
+    fileName = 'ipsDomains.txt'# 读取文件
     try:
         with open(fileName, 'r') as file:
             ipsdomainsList = list(set(line.strip() for line in file if line.strip()))
     except:
         print('没有ipsDomains.txt文件')
-    #创建时间
-    timesTamp = str(int(time.time()))
+    timesTamp = str(int(time.time()))# 创建时间
     print(timesTamp)
     print(" | 主线任务进度 |")
-    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, domainsList, domainsbundledIpsList, domainsList = [], [], [], [], [], [], []
-    # 创建线程池
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # 批量提交任务给线程池
-        for result in tqdm(executor.map(pingipDomain, ipsdomainsList), total=len(ipsdomainsList)):
+    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, domainsList, domainsbundledIpsList, newDomainsList = [], [], [], [], [], [], []# 创建列表
+    with concurrent.futures.ThreadPoolExecutor() as executor:# 创建线程池
+        for result in tqdm(executor.map(pingipDomain, ipsdomainsList), total=len(ipsdomainsList)):# 批量提交任务给线程池
             tqdm.update()
         print(" | 支线任务进度 |")
-        # 尝试 bypass cname 域名
-        for domain in cnameipsdomainsList:
+        for domain in cnameipsdomainsList:# 尝试 bypass cname 域名
             retrieval = re.search(r'\.[a-zA-Z0-9]{2,}\.[a-zA-Z]{2,}', domain)
             domain = retrieval.group()[1:]
-            if f"{domain}" not in domainsList:
-                domainsList = append.(f"{domain}")
-        # 重置列表
-        cnameipsdomainsList = []
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-        # 批量提交任务给线程池
-            for result in tqdm(executor.map(pingipDomain, domainsList), total=len(domainsList)):
+            if f"{domain}" not in newDomainsList:
+                newDomainsList = append.(f"{domain}")
+        cnameipsdomainsList = []# 重置记录
+        with concurrent.futures.ThreadPoolExecutor() as executor:# 创建线程池
+            for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):# 批量提交任务给线程池
                 tqdm.update()
-            #写入报告
-            with open('domainsbundledIps.txt', 'w') as file:
-                file.write('\n'.join(domainsbundledIpsList))
-            with open('onlineIPs.txt', 'w') as file:
-                file.writelines('\n'.join(ipsaddressList))
-            with open('onlineDomains.txt', 'w') as file:
-                file.writelines('\n'.join(domainsList))
-            with open('cnameServers.txt', 'w') as file:
-                file.writelines('\n'.join(cnameipsdomainsList))
+        with open('domainsbundledIps.txt', 'w') as file:#写入报告
+            file.write('\n'.join(domainsbundledIpsList))
+        with open('onlineIPs.txt', 'w') as file:
+            file.writelines('\n'.join(ipsaddressList))
+        with open('onlineDomains.txt', 'w') as file:
+            file.writelines('\n'.join(domainsList))
+        with open('cnameServers.txt', 'w') as file:
+            file.writelines('\n'.join(cnameipsdomainsList))
         '''以下内容备用
-        #with open('onlineipsDomains.txt', 'w') as file:
-            #file.writelines(f"{ipDomain}\n" for ipDomain in onlineipsdomainsList)
-        #with open('offlineServers.txt', 'w') as file:
-            #file.writelines(f"{ipDomain}\n" for ipDomain in offlineipsdomainsList)
+        with open('onlineipsDomains.txt', 'w') as file:
+            file.writelines(f"{ipDomain}\n" for ipDomain in onlineipsdomainsList)
+        with open('offlineServers.txt', 'w') as file:
+            file.writelines(f"{ipDomain}\n" for ipDomain in offlineipsdomainsList)
         '''
         print("任务执行完成")
