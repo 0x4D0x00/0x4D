@@ -31,30 +31,31 @@ def scanner(url):
         pass
 
 if __name__ == "__main__":
-    #刷新
-    iis7List, nginxList, otherList, newipsdomainsList = [], [], [], []
+    
+    iis7List, nginxList, otherList, newipsdomainsList = [], [], [], []# 刷新
     Datetime = str(int(time.time()))
-    #创建书签
-    with open('bookMark.html', 'w') as file:
+
+    with open('bookMark.html', 'w') as file:# 创建书签
         st = f'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     DO NOT EDIT! -->\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n    <DT><H3 ADD_DATE="2716597092" LAST_MODIFIED="0" PERSONAL_TOOLBAR_FOLDER="true">BOOK</H3>\n    <DL><p>\n    </DL><p>\n'
         file.writelines(st)
-    #获取url
-    try:
+    
+    try:# 获取url
         with open('urlsList.txt', 'r') as file:
             urlsList = list(set([url.strip() for url in file if url.strip()]))
     except:
         pass
-    #获取可访问页面
+    
     print(" | 主线任务进度 |")
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor() as executor:# 获取可访问页面
         for result in tqdm(executor.map(scanner, urlsList), total=len(urlsList)):
             pass
+        
     with open('bookMark.html', 'a') as file:
         file.writelines(f'	<DT><A HREF="{url}" ADD_DATE={Datetime}">{url}</A>\n' for url in otherList)
-    #书签完成
-    with open('bookMark.html', 'a') as file:
+    with open('bookMark.html', 'a') as file:# 书签写入完成
         dlp = '</DL><p>\n'
         file.write(dlp)
+    
     with open('nginxPorts.txt', 'w') as file:
         file.writelines("\n".join(nginxList))
     with open('IIS7Ports.txt', 'w') as file:
