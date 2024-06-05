@@ -5,7 +5,7 @@ import concurrent.futures
 from tqdm import tqdm
 from ftplib import FTP
 
-def check21Login(hostName):
+def check21Login(hostName):#检查21端口函数
 
     with open('21userNames.txt', 'r') as file:
         usernamesList = list(set(line.strip() for line in file if line.strip()))
@@ -27,13 +27,12 @@ def check21Login(hostName):
             return False
         
     for passWord in passwordsList:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # 批量提交任务给线程池
+        with concurrent.futures.ThreadPoolExecutor() as executor:# 批量提交任务给线程池
             for result in executor.map(attack, usernamesList):
                 pass
 
 
-def check22Login(hostName):
+def check22Login(hostName):#检查22端口函数
 
     with open('22userNames.txt', 'r') as file:
         usernamesList = list(set(line.strip() for line in file if line.strip()))
@@ -63,8 +62,7 @@ def check22Login(hostName):
             return False
         
     for password in passwordsList:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # 批量提交任务给线程池
+        with concurrent.futures.ThreadPoolExecutor() as executor:# 批量提交任务给线程池
             for result in executor.map(attack, usernamesList):
                 pass
  
@@ -80,10 +78,10 @@ if __name__ == "__main__":
         #"3306":{"checkFunction": check3306Login, "ipsList": []},
         #"6379":{"checkFunction": check6379Login, "ipsList": []},
         #"7001":{"checkFunction": check7001Login, "ipsList": []},
-        }
+        }# 端口信息
 
-     # 读取文件
-    try:
+    
+    try:# 读取文件
         with open('highriskPorts.txt', 'r') as file:
             for line in file:
                 ipPort = line.strip().split(":")
@@ -95,9 +93,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"读取文件失败: {e}")
     
-    # 并发执行登录检查
     print(f"弱口令用户检测开始，请等待")
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor() as executor:# 并发执行登录检查
         futures = {}
         tasks = sum(len(portInfo["ipsList"]) for port, portInfo in portsFiles.items())  # 计算总任务数
         with tqdm(total = tasks) as tqdmTask:
@@ -109,8 +106,7 @@ if __name__ == "__main__":
                     future = executor.submit(checkFunction, hostName)
                     futures[future] = hostName
             
-            # 打印检查结果
-            for future in concurrent.futures.as_completed(futures):
+            for future in concurrent.futures.as_completed(futures):# 打印检查结果
                 hostName = futures[future]
                 try:
                     result = future.result()
@@ -124,3 +120,5 @@ if __name__ == "__main__":
                     print(f"检查 {hostName} 时发生错误: {e}")
                 tqdmTask.update()
         print("检查完成")
+        
+    
