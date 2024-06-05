@@ -52,7 +52,7 @@ if __name__ == "__main__":
         with open("l3Domains.txt", 'r') as file:
             l3DomainsList = list(set(line.strip() for line in file if line.strip()))
     except:
-        print('没有ipsDomains.txt文件')
+        print('没有l3Domains.txt文件')
     for domain in cnameipsdomainsList:# 尝试 bypass cname 域名
         retrievalL3 = re.search(r'[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z]{2,}', domain)
         if domain == retrievalL3:
