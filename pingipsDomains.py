@@ -93,8 +93,6 @@ if __name__ == "__main__":
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
         for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):  # 批量提交任务给线程池
             pass
-    print(domainsbundledIpsList)
-    print(bypassList)
     for bundledItem in domainsbundledIpsList:
         domain, ip = bundledItem.split(':')
         for bypassItem in bypassList:
