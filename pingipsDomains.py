@@ -10,7 +10,7 @@ from tqdm import tqdm
 def pingipDomain(ipDomain):
 
     try:
-        response = subprocess.run(['ping', '-n', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)# ping并返回结果,如果你是Linux用户,请将-n改为-c
+        response = subprocess.run(['ping', '-n', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)   # ping并返回结果,如果你是Linux用户,请将-n改为-c
         if 'ms' in str(response):
             if 'cname' in str(response):
                 if f"{ipDomain}" not in cnameipsdomainsList:
@@ -31,21 +31,47 @@ def pingipDomain(ipDomain):
                 offlineipsdomainsList.append(f"{ipDomain}")
     except:
         pass
+
+def cnameBypass(domain):
+    try:
+        ipAddress = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', str(domain))
+        if ipAddress:
+            newdomain = ipAddress.group()
+            if newdomain:
+                pass
+        else:
+            retrievalLv2 = re.search(r'\.[^.]+\.[^.]+$', str(domain))
+            if retrievalLv2:
+                newdomain = retrievalLv2.group()[1:]
+                if newdomain:
+                    if f"{newdomain}" not in newDomainsList:
+                        newDomainsList.append(f"{newdomain}")
+                        bypassList.append(f"{newdomain}:{domain}")
+            else:
+                for Lv3domainWord in Lv3domainsWordsList:
+                    newdomain = f"{Lv3domainWord}" + "." + f"{domain}"
+                    if f"{newdomain}" not in newDomainsList:
+                        newDomainsList.append(f"{newdomain}")
+                        bypassList.append(f"{newdomain}:{domain}")
+    except Exception as e:
+        print(f"{e}")
     
 if __name__ == "__main__":
     
-    fileName = 'ipsDomains.txt'# 读取文件
+    fileName = 'ipsDomains.txt' # 读取文件
     try:
         with open(fileName, 'r') as file:
             ipsdomainsList = list(set(line.strip() for line in file if line.strip()))
     except:
-        print('没有ipsDomains.txt文件')
-    timesTamp = str(int(time.time()))# 创建时间
+        with open(fileName, 'w') as file:
+            pass
+        print('ipsDomains.txt文件内容为空。')
+    timesTamp = str(int(time.time()))   # 创建时间
     print(timesTamp)
     print(" | 主线任务进度 |")
-    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, domainsList, domainsbundledIpsList, newDomainsList = [], [], [], [], [], [], []# 创建列表
-    with concurrent.futures.ThreadPoolExecutor() as executor:# 创建线程池
-        for result in tqdm(executor.map(pingipDomain, ipsdomainsList), total=len(ipsdomainsList)):# 批量提交任务给线程池
+    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, domainsList, domainsbundledIpsList, newDomainsList, bypassList, hostsList = [], [], [], [], [], [], [], [], []    # 创建列表
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
+        for result in tqdm(executor.map(pingipDomain, ipsdomainsList), total=len(ipsdomainsList)):  # 批量提交任务给线程池
             pass
     print(" | 支线任务进度 |")
     try:
@@ -53,36 +79,43 @@ if __name__ == "__main__":
             Lv3domainsWordsList = list(set(line.strip() for line in file if line.strip()))
     except:
         print('没有Lv3domainsWords.txt文件')
-    for domain in cnameipsdomainsList:# 尝试 bypass cname 域名
-        try:
-            ipAddress = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', str(domain))
-            ipAddress = ipAddress.group()
+    print(" | 域名创建进度 |")
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
+        for result in tqdm(executor.map(cnameBypass, cnameipsdomainsList), total=len(cnameipsdomainsList)): # 批量提交任务给线程池
             pass
-        except:
-            try:
-                retrievalLv2 = re.search(r'\.[a-zA-Z0-9]{2,}\.[a-zA-Z]{2,}', domain)
-                domain = retrievalLv2.group()[1:]
-                if domain:
-                    if f"{domain}" not in newDomainsList:
-                        newDomainsList.append(f"{domain}")
-            except:
-                for Lv3domainWord in Lv3domainsWordsList:
-                    newdomain = f"{Lv3domainWord}" + "." + f"{domain}"
-                    if f"{newdomain}" not in newDomainsList:
-                        newDomainsList.append(f"{newdomain}")
-    cnameipsdomainsList = []# 重置记录
-    with concurrent.futures.ThreadPoolExecutor() as executor:# 创建线程池
-        for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):# 批量提交任务给线程池
+    with open('oldcnameServers.txt', 'w') as file:
+        file.writelines('\n'.join(cnameipsdomainsList))
+    with open('domainsbundledIps.txt', 'w') as file:    #写入报告
+        file.write('\n'.join(domainsbundledIpsList))
+    cnameipsdomainsList = []    # 重置记录
+    domainsbundledIpsList = []
+    print(" | 域名筛查进度 |")
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
+        for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):  # 批量提交任务给线程池
             pass
+    print(domainsbundledIpsList)
+    print(bypassList)
+    for bundledItem in domainsbundledIpsList:
+        domain, ip = bundledItem.split(':')
+        for bypassItem in bypassList:
+            bypassDomain, targetDomain = bypassItem.split(':')
+            if domain == bypass_domain: # 如果找到相同的第一个值，则组合为'ip targetDomain'并添加到hostsList中
+                hostsList.append(f'{ip} {targetDomain}')
     #class后转为调用其他函数
-    with open('domainsbundledIps.txt', 'w') as file:#写入报告
+    with open('domainsbundledIps.txt', 'a') as file:    #写入报告
         file.write('\n'.join(domainsbundledIpsList))
     with open('onlineIPs.txt', 'w') as file:
-        file.writelines('\n'.join(ipsaddressList))
+        file.write('\n'.join(ipsaddressList))
     with open('onlineDomains.txt', 'w') as file:
-        file.writelines('\n'.join(domainsList))
-    with open('cnameServers.txt', 'w') as file:
-        file.writelines('\n'.join(cnameipsdomainsList))
+        file.write('\n'.join(domainsList))
+    with open('newcnameServers.txt', 'w') as file:
+        file.write('\n'.join(cnameipsdomainsList))
+    try:
+        with open('C:\\Windows\\System32\\drivers\\etc\\hosts', 'a') as file:
+            file.write('\n'.join(hostsList))
+    except:
+        with open('hosts', 'w') as file:
+            file.write('\n'.join(hostsList))
     '''以下内容备用
     with open('onlineipsDomains.txt', 'w') as file:
         file.writelines(f"{ipDomain}\n" for ipDomain in onlineipsdomainsList)
