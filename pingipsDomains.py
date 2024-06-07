@@ -55,7 +55,6 @@ def cnameBypass(domain):
                     if f"{newdomain}" not in newDomainsList:
                         newDomainsList.append(f"{newdomain}")
                         bypassList.append(f"{newdomain}:{domain}")
-                        domainCreat(newdomain)
             else:
                 domainCreat(domain)
     except Exception as e:
