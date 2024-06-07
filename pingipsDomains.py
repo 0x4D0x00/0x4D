@@ -40,16 +40,16 @@ def cnameBypass(domain):
             if newdomain:
                 pass
         else:
-            retrievalLv2 = re.search(r'\.[^.]+\.[^.]+$', str(domain))
-            if retrievalLv2:
-                newdomain = retrievalLv2.group()[1:]
+            retrievaldomainName = re.search(r'\.[^.]+\.[^.]+$', str(domain))
+            if retrievaldomainName:
+                newdomain = retrievaldomainName.group()[1:]
                 if newdomain:
                     if f"{newdomain}" not in newDomainsList:
                         newDomainsList.append(f"{newdomain}")
                         bypassList.append(f"{newdomain}:{domain}")
             else:
-                for Lv3domainWord in Lv3domainsWordsList:
-                    newdomain = f"{Lv3domainWord}" + "." + f"{domain}"
+                for domainName in domainnamesList:
+                    newdomain = f"{domainName}" + "." + f"{domain}"
                     if f"{newdomain}" not in newDomainsList:
                         newDomainsList.append(f"{newdomain}")
                         bypassList.append(f"{newdomain}:{domain}")
@@ -75,10 +75,10 @@ if __name__ == "__main__":
             pass
     print(" | 支线任务进度 |")
     try:
-        with open("Lv3domainsWords.txt", 'r') as file:
-            Lv3domainsWordsList = list(set(line.strip() for line in file if line.strip()))
+        with open("domainnamesDict.txt", 'r') as file:
+            domainnamesList = list(set(line.strip() for line in file if line.strip()))
     except:
-        print('没有Lv3domainsWords.txt文件')
+        print('没有domainnamesDict.txt文件')
     print(" | 域名创建进度 |")
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
         for result in tqdm(executor.map(cnameBypass, cnameipsdomainsList), total=len(cnameipsdomainsList)): # 批量提交任务给线程池
@@ -93,6 +93,8 @@ if __name__ == "__main__":
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
         for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):  # 批量提交任务给线程池
             pass
+    print(domainsbundledIpsList)
+    print(bypassList)
     for bundledItem in domainsbundledIpsList:
         domain, ip = bundledItem.split(':')
         for bypassItem in bypassList:
