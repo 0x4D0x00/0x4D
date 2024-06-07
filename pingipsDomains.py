@@ -12,7 +12,7 @@ def searchgithubdnsServers(ipDomain):
     
     try:
         resolver = dns.resolver.Resolver()
-        answers = resolver.resolve(ipDomain, 'dns')
+        answers = resolver.resolve(ipDomain, 'A')
         for ipAddress in answers:
             dnsserversList.append(f"{ipAddress.address}")
             if ipAddress is not None:
@@ -20,6 +20,7 @@ def searchgithubdnsServers(ipDomain):
                 domainsbundledIpsList.append(f"{ipDomain}:{ipAddress.address}")
                 ipsaddressList.append(f"{ipAddress.address}")
                 onlineipsdomainsList.append(f"{ipDomain}")
+                hostsList.append(f"{ipAddress.address} {ipDomain}")
         return dnsserversList
     except Exception as e:
         pass
@@ -87,16 +88,16 @@ if __name__ == "__main__":
         print('ipsDomains.txt文件内容为空。')
     timesTamp = str(int(time.time()))   # 创建时间
     print(timesTamp)
-    print(" | ping ip/域名 |")
+    print(" | First job |")
     cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, domainsList, domainsbundledIpsList, newDomainsList, bypassList, hostsList, dnsserversList = [], [], [], [], [], [], [], [], [], []    # 创建列表
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 第1次ping
         for result in tqdm(executor.map(pingipDomain, ipsdomainsList), total=len(ipsdomainsList)):  # 批量提交任务给线程池
             pass
-    print(" | 查询dns记录 |")
+    print(" | Serach cname history dns record |")
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 查看cname域名历史dns记录
         for result in tqdm(executor.map(searchgithubdnsServers, cnameipsdomainsList), total=len(cnameipsdomainsList)): # 批量提交任务给线程池
             pass
-    
+    print(" | Second job |")
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 第2次ping
         for result in tqdm(executor.map(pingipDomain, dnsserversList), total=len(dnsserversList)): # 批量提交任务给线程池
             pass
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     except:
         domainnamesList = []
         print('domainnamesDict.txt文件内容为空。')
-    print(" | 域名bypass |")
+    print(" | Cname bypass |")
     with concurrent.futures.ThreadPoolExecutor() as executor:   # cname域名bypass尝试
         for result in tqdm(executor.map(cnameBypass, cnameipsdomainsList), total=len(cnameipsdomainsList)): # 批量提交任务给线程池
             pass
@@ -116,7 +117,7 @@ if __name__ == "__main__":
         file.write('\n'.join(domainsbundledIpsList))
     cnameipsdomainsList = []    # 重置记录
     domainsbundledIpsList = []
-    print(" | 总结归纳 |")
+    print(" | Last job |")
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 第3次ping
         for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):  # 批量提交任务给线程池
             pass
@@ -142,6 +143,8 @@ if __name__ == "__main__":
     except:
         with open('hosts', 'w') as file:
             file.write('\n'.join(hostsList))
+    print(f"在线数量:{len(onlineipsdomainsList)}")
+    print(f"离线数量:{len(offlineipsdomainsList)}")
     '''以下内容备用
     with open('onlineipsDomains.txt', 'w') as file:
         file.writelines(f"{ipDomain}\n" for ipDomain in onlineipsdomainsList)
