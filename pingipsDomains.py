@@ -99,7 +99,7 @@ if __name__ == "__main__":
         domain, ip = bundledItem.split(':')
         for bypassItem in bypassList:
             bypassDomain, targetDomain = bypassItem.split(':')
-            if domain == bypass_domain: # 如果找到相同的第一个值，则组合为'ip targetDomain'并添加到hostsList中
+            if domain == bypassDomain: # 如果找到相同的第一个值，则组合为'ip targetDomain'并添加到hostsList中
                 hostsList.append(f'{ip} {targetDomain}')
     #class后转为调用其他函数
     with open('domainsbundledIps.txt', 'a') as file:    #写入报告
