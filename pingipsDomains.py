@@ -33,6 +33,14 @@ def pingipDomain(ipDomain):
         pass
 
 def cnameBypass(domain):
+
+    def domainCreat(domain):
+        for domainName in domainnamesList:
+            newdomain = f"{domainName}" + "." + f"{domain}"
+            if f"{newdomain}" not in newDomainsList:
+                newDomainsList.append(f"{newdomain}")
+                bypassList.append(f"{newdomain}:{domain}")
+        return newDomainsList, bypassList
     try:
         ipAddress = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', str(domain))
         if ipAddress:
@@ -47,12 +55,9 @@ def cnameBypass(domain):
                     if f"{newdomain}" not in newDomainsList:
                         newDomainsList.append(f"{newdomain}")
                         bypassList.append(f"{newdomain}:{domain}")
+                        domainCreat(newdomain)
             else:
-                for domainName in domainnamesList:
-                    newdomain = f"{domainName}" + "." + f"{domain}"
-                    if f"{newdomain}" not in newDomainsList:
-                        newDomainsList.append(f"{newdomain}")
-                        bypassList.append(f"{newdomain}:{domain}")
+                domainCreat(domain)
     except Exception as e:
         print(f"{e}")
     
@@ -78,7 +83,8 @@ if __name__ == "__main__":
         with open("domainnamesDict.txt", 'r') as file:
             domainnamesList = list(set(line.strip() for line in file if line.strip()))
     except:
-        print('没有domainnamesDict.txt文件')
+        domainnamesList = []
+        print('domainnamesDict.txt文件内容为空。')
     print(" | 域名创建进度 |")
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
         for result in tqdm(executor.map(cnameBypass, cnameipsdomainsList), total=len(cnameipsdomainsList)): # 批量提交任务给线程池
@@ -93,8 +99,6 @@ if __name__ == "__main__":
     with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
         for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):  # 批量提交任务给线程池
             pass
-    print(domainsbundledIpsList)
-    print(bypassList)
     for bundledItem in domainsbundledIpsList:
         domain, ip = bundledItem.split(':')
         for bypassItem in bypassList:
