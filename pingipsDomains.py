@@ -11,12 +11,12 @@ def pingipDomain(ipDomain):
 
     try:
         response = subprocess.run(['ping', '-n', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)   # ping并返回结果,如果你是Linux用户,请将-n改为-c
-        if 'ms' in str(response):
-            if 'cname' in str(response):
+        if 'ms' in str(response):   # 寻找存活目标
+            if 'cname' in str(response):    # 筛查附带云防御目标
                 if f"{ipDomain}" not in cnameipsdomainsList:
-                    cnameipsdomainsList.append(f"{ipDomain}")                
+                    cnameipsdomainsList.append(f"{ipDomain}")
             else:
-                ipAddress = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', str(response))
+                ipAddress = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', str(response))   # 提取ip地址
                 ipAddress = ipAddress.group()
                 if f"{ipAddress}" not in ipsaddressList:
                     ipsaddressList.append(f"{ipAddress}")
@@ -80,7 +80,7 @@ if __name__ == "__main__":
             pass
     print(" | 支线任务进度 |")
     try:
-        with open("domainnamesDict.txt", 'r') as file:
+        with open("domainnamesDict.txt", 'r') as file:  # 读取域名字典
             domainnamesList = list(set(line.strip() for line in file if line.strip()))
     except:
         domainnamesList = []
@@ -104,7 +104,8 @@ if __name__ == "__main__":
         for bypassItem in bypassList:
             bypassDomain, targetDomain = bypassItem.split(':')
             if domain == bypassDomain: # 如果找到相同的第一个值，则组合为'ip targetDomain'并添加到hostsList中
-                hostsList.append(f'{ip} {targetDomain}')
+                if f"{ip} {targetDomain}" not in hostsList:
+                    hostsList.append(f'{ip} {targetDomain}')
     #class后转为调用其他函数
     with open('domainsbundledIps.txt', 'a') as file:    #写入报告
         file.write('\n'.join(domainsbundledIpsList))
