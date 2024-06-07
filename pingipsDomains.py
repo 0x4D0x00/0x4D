@@ -4,11 +4,27 @@ ping ip 或 域名, 返回在线ip
 import re
 import time
 import subprocess
+import dns.resolver
 import concurrent.futures
 from tqdm import tqdm
 
+def searchgithubdnsServers(ipDomain):
+    
+    try:
+        resolver = dns.resolver.Resolver()
+        answers = resolver.resolve(ipDomain, 'dns')
+        for ipAddress in answers:
+            dnsserversList.append(f"{ipAddress.address}")
+            if ipAddress is not None:
+                cnameipsdomainsList.remove(ipDomain)
+                domainsbundledIpsList.append(f"{ipDomain}:{ipAddress.address}")
+                ipsaddressList.append(f"{ipAddress.address}")
+                onlineipsdomainsList.append(f"{ipDomain}")
+        return dnsserversList
+    except Exception as e:
+        pass
 def pingipDomain(ipDomain):
-
+    
     try:
         response = subprocess.run(['ping', '-n', '2', ipDomain], stdout = subprocess.PIPE, text = True, shell = True)   # ping并返回结果,如果你是Linux用户,请将-n改为-c
         if 'ms' in str(response):   # 寻找存活目标
@@ -31,7 +47,6 @@ def pingipDomain(ipDomain):
                 offlineipsdomainsList.append(f"{ipDomain}")
     except:
         pass
-
 def cnameBypass(domain):
 
     def domainCreat(domain):
@@ -72,20 +87,27 @@ if __name__ == "__main__":
         print('ipsDomains.txt文件内容为空。')
     timesTamp = str(int(time.time()))   # 创建时间
     print(timesTamp)
-    print(" | 主线任务进度 |")
-    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, domainsList, domainsbundledIpsList, newDomainsList, bypassList, hostsList = [], [], [], [], [], [], [], [], []    # 创建列表
-    with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
+    print(" | ping ip/域名 |")
+    cnameipsdomainsList, onlineipsdomainsList, offlineipsdomainsList, ipsaddressList, domainsList, domainsbundledIpsList, newDomainsList, bypassList, hostsList, dnsserversList = [], [], [], [], [], [], [], [], [], []    # 创建列表
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # 第1次ping
         for result in tqdm(executor.map(pingipDomain, ipsdomainsList), total=len(ipsdomainsList)):  # 批量提交任务给线程池
             pass
-    print(" | 支线任务进度 |")
+    print(" | 查询dns记录 |")
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # 查看cname域名历史dns记录
+        for result in tqdm(executor.map(searchgithubdnsServers, cnameipsdomainsList), total=len(cnameipsdomainsList)): # 批量提交任务给线程池
+            pass
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # 第2次ping
+        for result in tqdm(executor.map(pingipDomain, dnsserversList), total=len(dnsserversList)): # 批量提交任务给线程池
+            pass
     try:
         with open("domainnamesDict.txt", 'r') as file:  # 读取域名字典
             domainnamesList = list(set(line.strip() for line in file if line.strip()))
     except:
         domainnamesList = []
         print('domainnamesDict.txt文件内容为空。')
-    print(" | 域名创建进度 |")
-    with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
+    print(" | 域名bypass |")
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # cname域名bypass尝试
         for result in tqdm(executor.map(cnameBypass, cnameipsdomainsList), total=len(cnameipsdomainsList)): # 批量提交任务给线程池
             pass
     with open('oldcnameServers.txt', 'w') as file:
@@ -94,8 +116,8 @@ if __name__ == "__main__":
         file.write('\n'.join(domainsbundledIpsList))
     cnameipsdomainsList = []    # 重置记录
     domainsbundledIpsList = []
-    print(" | 域名筛查进度 |")
-    with concurrent.futures.ThreadPoolExecutor() as executor:   # 创建线程池
+    print(" | 总结归纳 |")
+    with concurrent.futures.ThreadPoolExecutor() as executor:   # 第3次ping
         for result in tqdm(executor.map(pingipDomain, newDomainsList), total=len(newDomainsList)):  # 批量提交任务给线程池
             pass
     for bundledItem in domainsbundledIpsList:
@@ -115,7 +137,7 @@ if __name__ == "__main__":
     with open('newcnameServers.txt', 'w') as file:
         file.write('\n'.join(cnameipsdomainsList))
     try:
-        with open('C:\\Windows\\System32\\drivers\\etc\\hosts', 'a') as file:
+        with open('C:\\Windows\\System32\\drivers\\etc\\hosts', 'a') as file:   # 改写hosts文件，使用真实ip与域名绑定
             file.write('\n'.join(hostsList))
     except:
         with open('hosts', 'w') as file:
