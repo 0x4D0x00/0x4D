@@ -35,27 +35,14 @@ def retrieval_ips_domains(ip_domain):
     result = ping_ip_domain(ip_domain)
     if result:
         ip_address = get_ip(str(result))
-        if 'cname' in str(result):
-            resolver = dns.resolver.Resolver()
-            answers = resolver.resolve(ip_domain, 'A')
-            for rdata in answers:
-                try:
-                    new_ip = get_ip(str(rdata.address))
-                except:
-                    new_ip = None
-                if new_ip is not None:
-                    x = re.search(r'[0-9]{1,3}\.', str(ip_address))
-                    x = x.group()[:-1]
-                    y = re.search(r'[0-9]{1,3}\.', str(new_ip))
-                    y = y.group()[:-1]
-                    if int(x) != int(y):
-                        bypass_hosts_List.append(f"{new_ip} {ip_domain}")
-                    else:
-                        cname_hosts_List.append(f"{ip_address} {ip_domain}")
-        else: 
-            if ip_address:
-                hosts_List.append(f"{ip_address} {ip_domain}")
-    return cname_hosts_List, bypass_hosts_List, hosts_List
+        if ip_address is not None:
+            if 'cname' in str(result):
+                if f"{ip_address} {ip_domain}" not in cname_hosts_List:
+                    cname_hosts_List.append(f"{ip_address} {ip_domain}")
+            else: 
+                if ip_address:
+                    hosts_List.append(f"{ip_address} {ip_domain}")
+    return cname_hosts_List, hosts_List
 def cname_bypass(domain):
     def bypass_retrieval(domain, new_domain):
         try:
@@ -80,6 +67,7 @@ def cname_bypass(domain):
         for domain_name in domain_name_List:
             new_domain = f"{domain_name}" + "." + f"{domain}"
             bypass_retrieval(domain, new_domain)
+    #__main__
     try:
         retrieval_domain_Name = re.search(r'\.[^.]+\.[^.]+$', str(domain))
         if retrieval_domain_Name:
@@ -110,6 +98,7 @@ if __name__ == '__main__':
     on_line_ip_List = []
     on_line_domain_List = []
     off_line_List = []
+    cname_ips_List = []
     cname_hosts_List = []
     bypass_hosts_List = []
     hosts_List = []
@@ -126,14 +115,26 @@ if __name__ == '__main__':
     print("bypass cname domains")
     for ip_domain in cname_hosts_List:
         ip, domain = ip_domain.split(' ')
+        cname_ips_List.append(ip)
         cname_domain_List.append(domain)
     multithreaded_processor(cname_bypass, cname_domain_List)
+
     if bypass_hosts_List is not None:
         with open('C:\\Windows\\System32\\drivers\\etc\\hosts', 'w') as file:   # 改写hosts文件，使用真实ip与域名绑定
             file.write('\n'.join(bypass_hosts_List))
-    for ips_domainS in bypass_hosts_List:
-        if ips_domainS not in hosts_List:
-            hosts_List.append(ips_domainS)
+    
+    for ip_domain in bypass_hosts_List:
+        ip, domain = ip_domain.split(' ')
+        if f"{ip} {domain}" not in hosts_List:
+            hosts_List.append(f"{ip} {domain}")
+
+    for ip_domain in hosts_List:
+        ip, domain = ip_domain.split(' ')
+        with open('onlineIPs.txt', 'w') as file:
+            file.write('\n'+ ip)
+        with open('onlineDomains.txt', 'w') as file:
+            file.write('\n'+ domain)
+
     with open('hosts.txt', 'w') as file:
         file.write('\n'.join(hosts_List))
     print(f"on line ips:{len(hosts_List)}")
