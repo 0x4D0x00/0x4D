@@ -118,7 +118,7 @@ if __name__ == '__main__':
     print("ping ips and domains")
     multithreaded_processor(retrieval_ips_domains, ips_domains_List)
     try:
-        with open("domainnamesDict2.txt", 'r') as file:  # 读取域名字典
+        with open("domainnamesDict.txt", 'r') as file:  # 读取域名字典
             domain_name_List = list(set(line.strip() for line in file if line.strip()))
     except Exception as e:
         print(e)
