@@ -4,7 +4,6 @@ ping ip 或 域名, 返回在线ip
 import re
 import platform
 import subprocess
-import dns.resolver
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
 
@@ -48,20 +47,19 @@ def cname_bypass(domain):
         try:
             old_result = ping_ip_domain(str(domain))
             new_result = ping_ip_domain(str(new_domain))
+            if 'ms' in str(new_result) and 'cname' not in str(new_result):
+                cname_ip = get_ip(str(old_result))
+                new_ip = get_ip(str(new_result))
+                if new_ip is not None:
+                    x = re.search(r'[0-9]{1,3}\.', str(cname_ip))
+                    x = x.group()[:-1]
+                    y = re.search(r'[0-9]{1,3}\.', str(new_ip))
+                    y = y.group()[:-1]
+                    if int(x) != int(y):
+                        if f"{new_ip} {domain}" not in bypass_hosts_List:
+                            bypass_hosts_List.append(f"{new_ip} {domain}")
         except Exception as e:
             print(e)
-            new_result = 'cname'
-        if 'ms' in str(new_result) and 'cname' not in str(new_result):
-            cname_ip = get_ip(str(old_result))
-            new_ip = get_ip(str(new_result))
-            if new_ip is not None:
-                x = re.search(r'[0-9]{1,3}\.', str(cname_ip))
-                x = x.group()[:-1]
-                y = re.search(r'[0-9]{1,3}\.', str(new_ip))
-                y = y.group()[:-1]
-                if int(x) != int(y):
-                    if f"{new_ip} {domain}" not in bypass_hosts_List:
-                        bypass_hosts_List.append(f"{new_ip} {domain}")
         return bypass_hosts_List
     def domain_creat(domain):
         for domain_name in domain_name_List:
@@ -74,6 +72,7 @@ def cname_bypass(domain):
             new_domain = retrieval_domain_Name.group()[1:]
             bypass_retrieval(str(domain), str(new_domain))
         else:
+            print(f'{domain} 进行域名重组')
             domain_creat(str(domain))
     except Exception as e:
         domain_creat(str(domain))
@@ -117,26 +116,29 @@ if __name__ == '__main__':
         ip, domain = ip_domain.split(' ')
         cname_ips_List.append(ip)
         cname_domain_List.append(domain)
+    print(cname_domain_List)
     multithreaded_processor(cname_bypass, cname_domain_List)
 
     if bypass_hosts_List is not None:
         with open('C:\\Windows\\System32\\drivers\\etc\\hosts', 'w') as file:   # 改写hosts文件，使用真实ip与域名绑定
             file.write('\n'.join(bypass_hosts_List))
-    
+
     for ip_domain in bypass_hosts_List:
         ip, domain = ip_domain.split(' ')
         if f"{ip} {domain}" not in hosts_List:
             hosts_List.append(f"{ip} {domain}")
-
-    for ip_domain in hosts_List:
-        ip, domain = ip_domain.split(' ')
-        with open('onlineIPs.txt', 'w') as file:
-            file.write('\n'+ ip)
-        with open('onlineDomains.txt', 'w') as file:
-            file.write('\n'+ domain)
-
     with open('hosts.txt', 'w') as file:
         file.write('\n'.join(hosts_List))
+    
+    for ip_domain in hosts_List:
+        ip, domain = ip_domain.split(' ')
+        on_line_ip_List.append(ip)
+        on_line_domain_List.append(domain)
+    with open('onlineIPs.txt', 'w') as file:
+        file.write('\n'.join(on_line_ip_List))
+    with open('onlineDomains.txt', 'w') as file:
+        file.write('\n'.join(on_line_domain_List))
+
     print(f"on line ips:{len(hosts_List)}")
     print(f"off line ips:{len(off_line_List)}")
     print(f"cname domains:{len(cname_hosts_List)}")
