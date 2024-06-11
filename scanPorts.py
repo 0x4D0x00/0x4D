@@ -99,8 +99,8 @@ if __name__ == "__main__":
             ripsList = list(set(line.strip() for line in file if line.strip()))
         with open('onlineDomains.txt', 'r') as file:
             rdomainsList = list(set(line.strip() for line in file if line.strip()))
-        with open('domainsbundledIps.txt', 'r') as file:
-            rdomainsbundledIpsList = list(set(line.strip() for line in file if line.strip()))
+        with open('hosts.txt', 'r') as file:
+            hosts_List = list(set(line.strip() for line in file if line.strip()))
     except:
         pass
 
@@ -127,11 +127,11 @@ if __name__ == "__main__":
         for result in tqdm(executor.map(writeReport, newopenportsList), total = len(newopenportsList)):
             pass
       
-    ipDomainMap = {ip: domain for domain, ip in (entry.split(':') for entry in rdomainsbundledIpsList)}# 创建字典，存储映射  
+    ipDomainMap = {domain: ip for domain, ip in (entry.split(' ') for entry in hosts_List)}# 创建字典，存储映射  
 
     for ip in temporaryList:# 过滤temporaryList中的IP，找出它们对应的域名，并从rdomainsList中删除这些域名
         if ip in ipDomainMap:
-            domain = ipDomainMap[ip]
+            domain = ipDomainMap[domain]
             if domain in rdomainsList:
                 rdomainsList.remove(domain)
     for domain in rdomainsList:
