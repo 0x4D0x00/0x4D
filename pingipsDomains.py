@@ -67,12 +67,12 @@ def cname_bypass(domain):
             bypass_retrieval(domain, new_domain)
     #__main__
     try:
-        retrieval_domain_Name = re.search(r'\.[^.]+\.[^.]+$', str(domain))
+        retrieval_domain_Name = re.search(r'\b[^.]+\.(?:gov|cn|com)+.*$', str(domain))
         if retrieval_domain_Name:
             new_domain = retrieval_domain_Name.group()[1:]
             bypass_retrieval(str(domain), str(new_domain))
         else:
-            print(f'{domain} 进行域名重组')
+            #print(f'{domain} 进行域名重组')
             domain_creat(str(domain))
     except Exception as e:
         domain_creat(str(domain))
