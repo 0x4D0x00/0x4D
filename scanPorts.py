@@ -127,7 +127,7 @@ if __name__ == "__main__":
         for result in tqdm(executor.map(writeReport, newopenportsList), total = len(newopenportsList)):
             pass
       
-    ipDomainMap = {domain: ip for domain, ip in (entry.split(' ') for entry in hosts_List)}# 创建字典，存储映射  
+    ipDomainMap = {ip: domain for ip, domain in (entry.split(' ') for entry in hosts_List)}# 创建字典，存储映射  
 
     for ip in temporaryList:# 过滤temporaryList中的IP，找出它们对应的域名，并从rdomainsList中删除这些域名
         if ip in ipDomainMap:
