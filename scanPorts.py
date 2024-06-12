@@ -11,7 +11,7 @@ def scanPorts(ip):
 
     #####################################################
     #定义扫描端口数量（暂时65535个，改变数字可自定义范围）
-    portList = [i for i in range(1,65536)]
+    portList = [i for i in range(1,65535)]
     #####################################################
     
     openportsQueue = queue.Queue()
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     for ip in temporaryList:# 过滤temporaryList中的IP，找出它们对应的域名，并从rdomainsList中删除这些域名
         if ip in ipDomainMap:
-            domain = ipDomainMap[domain]
+            domain = ipDomainMap[ip]
             if domain in rdomainsList:
                 rdomainsList.remove(domain)
     for domain in rdomainsList:
