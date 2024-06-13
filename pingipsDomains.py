@@ -79,6 +79,7 @@ def cname_bypass(domain):   # 包含cname的域名尝试绕过函数
         print(e)
 def multithreaded_processor(func, iterable):
     with ThreadPoolExecutor() as executor:  # 多线程分发任务func = 需要调用的函数名，iterable = func该函数需要用到的列表
+    #with ThreadPoolExecutor(max_workers=x) as executor:   # 设置最大线程数为x, x为整数，范围为1-100，如果有资源限制，请设置为大于0小于等于100的整数。
         for result in tqdm(executor.map(func, iterable), total=len(iterable)):  # 显示进度条
             return result   # 返回结果
 
