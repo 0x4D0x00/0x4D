@@ -4,28 +4,28 @@ Created on 2024. 6. 1
 read and write service
 '''
 class readWrite:
-    def __init__(self, file_name):
-        self.file_name = f"{file_name}"
-        self.write_List = []
+    def __init__(self, target):
+        self.target = f"{target}"
+        self.iterable = []
     def read_txt(self):
-        file_name = self.file_name
+        target = self.target
         try:
-            with open(file_name, 'r') as file:
+            with open(target, 'r') as file:
                 iterable = list(set(line.strip() for line in file if line.strip()))
             return iterable
         except:
             print('File not found')
             return []
     def write_txt(self, iterable):
-        file_name = self.file_name
+        target = self.target
         try:
-            with open(file_name, 'w') as file:
+            with open(target, 'w') as file:
                 file.write('\n'.join(iterable))
             return True
         except:
             for line in iterable:
                 print(f"{line}")
-            pass
+                return f"{line}"
 if __name__ == '__main__':
     file_name = 'ipsDomains.txt'
     read_List = readWrite(file_name).read_txt()
