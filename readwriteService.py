@@ -13,8 +13,8 @@ class readWrite:
             with open(target, 'r') as file:
                 iterable = list(set(line.strip() for line in file if line.strip()))
             return iterable
-        except:
-            print('File not found')
+        except FileNotFoundError as e:
+            print(f'{e}')
             return []
     def write_txt(self, iterable):
         target = self.target
@@ -24,10 +24,10 @@ class readWrite:
             return True
         except:
             for line in iterable:
-                print(f"{line}")
+                #print(f"{line}")
                 return f"{line}"
 if __name__ == '__main__':
-    file_name = 'ipsDomains.txt'
+    file_name = 'c:\\Program Files (x86)\\Tools\\jobTools\\ipsDomains.txt'
     read_List = readWrite(file_name).read_txt()
     print(read_List)
     
