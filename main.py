@@ -7,7 +7,7 @@ import re
 from getServiceOptimized import IPExtractor
 from pingServiceOptimized import PingService
 from readwriteServiceOptimized import ReadWriteService
-from NslookupService import NslookupService
+from nslookupServiceOptimized import NslookupService
 from multiprocessServiceOptimized import MultiProcessService
 
 class NetworkOperations:
