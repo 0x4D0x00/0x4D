@@ -1,36 +1,35 @@
+
 '''
-Created on 2024. 6. 1
-@author: 0x4D
-read and write service
+文件读写服务模块
+提供读取和写入文本文件的功能，用于处理域名列表等数据的存取。
 '''
-class readWrite:
-    def __init__(self, target):
-        self.target = f"{target}"
-        self.iterable = []
-    def read_txt(self):
-        target = self.target
-        try:
-            with open(target, 'r') as file:
-                iterable = list(set(line.strip() for line in file if line.strip()))
-            return iterable
-        except FileNotFoundError as e:
-            print(f'{e}')
-            return []
-    def write_txt(self, iterable):
-        target = self.target
-        try:
-            with open(target, 'w') as file:
-                file.write('\n'.join(iterable))
-            return True
-        except:
-            for line in iterable:
-                #print(f"{line}")
-                return f"{line}"
-if __name__ == '__main__':
-    file_name = 'c:\\Program Files (x86)\\Tools\\jobTools\\ipsDomains.txt'
-    read_List = readWrite(file_name).read_txt()
-    print(read_List)
+
+class ReadWriteService:
+    def __init__(self, file_path):
+        """初始化读写服务。
+        :param file_path: 文件路径，用于指定读取和写入的文件。
+        """
+        self.file_path = file_path
     
-    file_name = 'text.txt'
-    write_List = ['192.168.1.1', '192.168.1.2']
-    write_file = readWrite(file_name).write_txt(write_List)
+    def read_txt(self):
+        """读取文本文件内容。
+        :return: 返回文件中每行的列表，排除空行。
+        """
+        try:
+            with open(self.file_path, 'r', encoding='utf-8') as file:
+                return [line.strip() for line in file if line.strip()]
+        except Exception as e:
+            print(f'读取文件错误: {e}')
+            return []
+    
+    def write_txt(self, lines):
+        """将列表中的数据写入文本文件。
+        :param lines: 字符串列表，每个元素代表一行写入的内容。
+        """
+        try:
+            with open(self.file_path, 'w', encoding='utf-8') as file:
+                file.write('\n'.join(lines))
+            return True
+        except Exception as e:
+            print(f'写入文件错误: {e}')
+            return False
