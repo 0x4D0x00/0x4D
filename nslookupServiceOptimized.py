@@ -36,7 +36,7 @@ class NslookupService:
             if platform.system() == 'Windows':
                 ip_pattern = re.compile(r'名称')
             else:
-                ip_pattern = re.compile(r'^\S+$')  # 对于dig +short，整个输出行就是IP地址
+                ip_pattern = re.compile(r'^\S+$')  # 对于dig +short，还未调整
 
             matches = ip_pattern.search(output)
             if matches:
@@ -50,6 +50,5 @@ class NslookupService:
 
 if __name__ == '__main__':
     nslookup_service = NslookupService()
-    # 注意：修复了域名
     output = nslookup_service.nslookup('www.baidu.com')
     print(f"Result: {output[0]}, Info: {output[1]}")  # 格式化输出
