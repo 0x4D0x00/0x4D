@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
 class MultiProcessService:
-    def __init__(self, function, iterable, max_workers=10):
+    def __init__(self, function, iterable):
         """初始化多进程服务。
         :param function: 要并行执行的函数。
         :param iterable: 需要处理的数据集。
@@ -16,13 +16,12 @@ class MultiProcessService:
         """
         self.function = function
         self.iterable = iterable
-        self.max_workers = max_workers
-
+        self.data = self.execute()
     def execute(self):
         """执行并行处理任务。
         :return: 执行结果列表。
         """
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+        with ThreadPoolExecutor() as executor:
             results = list(tqdm(executor.map(self.function, self.iterable), total=len(self.iterable)))
         return results
 
