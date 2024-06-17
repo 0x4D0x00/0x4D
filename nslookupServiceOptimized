@@ -7,7 +7,6 @@ def is_valid_ip(ip):
     parts = ip.split('.')
     if len(parts) == 4 and all(part.isdigit() and 0 <= int(part) <= 255 for part in parts):
         return True
-    # 处理IPv6地址
     try:
         from ipaddress import ip_address
         ip_address(ip)
@@ -23,20 +22,27 @@ class NslookupService:
         if platform.system() == 'Windows':
             return ['nslookup']
         else:
-            return ['dig', '+short']  # 使用dig的+short选项获取简洁的IP地址输出
+            return ['dig', '+short']
 
     def nslookup(self, target):
         try:
             args = self.nslookup_cmd + [target]
             response = subprocess.run(args, capture_output=True, text=True, timeout=1)
-            output = response.stdout
+            output = response.stdout.strip()  # 去除输出字符串的空白字符
             if response.returncode != 0:
                 return False, f"Error executing command: {output}"
-            ip_pattern = re.compile(r'名称')
-            matches = ip_pattern.findall(f"{output}")
+            
+            # 根据操作系统和命令类型使用不同的正则表达式来提取IP地址
+            if platform.system() == 'Windows':
+                ip_pattern = re.compile(r'名称')
+            else:
+                ip_pattern = re.compile(r'^\S+$')  # 对于dig +short，整个输出行就是IP地址
+
+            matches = ip_pattern.search(output)
             if matches:
                 return True, output
-            return False, output
+            else:
+                return False, "False"
         except subprocess.TimeoutExpired:
             return False, "Command timed out."
         except Exception as e:
@@ -44,5 +50,6 @@ class NslookupService:
 
 if __name__ == '__main__':
     nslookup_service = NslookupService()
-    output = nslookup_service.nslookup('www.baiducom')
-    print(f"{output}")
+    # 注意：修复了域名
+    output = nslookup_service.nslookup('www.baidu.com')
+    print(f"Result: {output[0]}, Info: {output[1]}")  # 格式化输出
