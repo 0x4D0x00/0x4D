@@ -5,7 +5,7 @@
 '''
 
 class ReadWriteService:
-    def __init__(self, file_path, sheet_name=0, start_row=None, start_col=None):
+    def __init__(self, file_path, sheet_name=0, header=None, start_row=None, start_col=None):
         """初始化读写服务。
         :param file_path: 文件路径，用于指定读取和写入的文件。
         """
@@ -13,6 +13,7 @@ class ReadWriteService:
         self.sheet_name = sheet_name
         self.start_row = start_row
         self.start_col = start_col
+        self.header = header
     
     def read_txt(self):
         """读取文本文件内容。
@@ -39,11 +40,15 @@ class ReadWriteService:
 
     def read_excel(self):
         import pandas
-        read_data = pandas.read_excel(self.file_path, self.sheet_name, header=None, skiprows=self.start_row, usecols=self.start_col)
-        result_list = []
-        for index, row in read_data.iterrows():
-            if self.start_row is not None and index < self.start_row:
-                continue
-            row_data = ' '.join(map(str, row.dropna().tolist()))
-            result_list.append(row_data)
-        return result_list
+        try:
+            read_data = pandas.read_excel(self.file_path, self.sheet_name, header=self.header, skiprows=self.start_row, usecols=self.start_col)
+            result_list = []
+            for index, row in read_data.iterrows():
+                if self.start_row is not None and index < self.start_row:
+                    continue
+                row_data = ' '.join(map(str, row.dropna().tolist()))
+                result_list.append(row_data)
+            return result_list
+        except Exception as e:
+            print(f'读取Excel文件错误: {e}')
+            return []
