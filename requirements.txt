@@ -1,8 +1,6 @@
+requests
+tqdm
 concurrent.futures
 subprocess
-requests
-socket
-queue
-paramiko
-ftplib
-tqdm
+platform
+pandas
