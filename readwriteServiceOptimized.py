@@ -5,11 +5,12 @@
 '''
 
 class ReadWriteService:
-    def __init__(self, file_path, sheet_name=0, header=None, start_row=None, start_col=None):
+    def __init__(self, file_path, write_method='w', sheet_name=0, header=None, start_row=None, start_col=None):
         """初始化读写服务。
         :param file_path: 文件路径，用于指定读取和写入的文件。
         """
         self.file_path = file_path
+        self.write_method = write_method
         self.sheet_name = sheet_name
         self.start_row = start_row
         self.start_col = start_col
@@ -31,7 +32,7 @@ class ReadWriteService:
         :param lines: 字符串列表，每个元素代表一行写入的内容。
         """
         try:
-            with open(self.file_path, 'w', encoding='utf-8') as file:
+            with open(self.file_path, self.write_method, encoding='utf-8') as file:
                 file.write('\n'.join(lines))
             return True
         except Exception as e:
