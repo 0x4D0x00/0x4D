@@ -37,7 +37,19 @@ class AccessCheckService:
                 return content
         else:
             return content
-        
+    def maker_urls(self):
+        self.target = f"http://{self.target}"
+        content  = self.access_service()
+        if content is None:
+            self.target = f"https://{self.target}"
+            content  = self.access_service()
+            if content is None:
+                pass
+            else:
+                return f"https://{self.target}"
+        else:
+            return f"http://{self.target}"
+
 # 示例用法
 if __name__ == "__main__":
     from multiprocessServiceOptimized import MultiProcessService
