@@ -43,6 +43,10 @@ if __name__ == "__main__":
     from multiprocessServiceOptimized import MultiProcessService
     domain_list = ["www.baidu.com", "www.google.com", "www.bing.com"]
     def domain_check(target):
+        """发送 HTTP或HTTPS 请求。
+        :param target: 要请求的域名。
+        :return: 提取到的网站页面信息。
+        """
         result = AccessCheckService(target)
         return result.check_access()
     result = MultiProcessService(domain_check, domain_list).execute()
@@ -50,6 +54,10 @@ if __name__ == "__main__":
     
     url_list = ["http://www.baidu.com", "http://www.google.com", "http://www.bing.com"]
     def url_check(target):
+        """发送 HTTP或HTTPS 请求。
+        :param target: 要请求的URL链接。
+        :return: 提取到的网站页面信息。
+        """
         result = AccessCheckService(target)
         return result.access_service()
     result = MultiProcessService(url_check, url_list).execute()
