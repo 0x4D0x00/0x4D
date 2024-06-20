@@ -1,18 +1,21 @@
 '''
 访问检测服务
 ''' 
-from multiprocessServiceOptimized import MultiProcessService
 class AccessCheckService:
     def __init__(self, target):
         self.target = target
+        self.user_agent = "User-Agent: Mozilla/5.0 (hp-tablet; Linux; hpwOS/3.0.0; U; en-US) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 TouchPad/1.0"
+        self.cookies = ""
     def access_service(self):
         '''
         使用url访问检测
         '''
         import requests
+        
         try:
-            response = requests.get(self.target, timeout = 5)
+            response = requests.get(self.target, headers=self.user_agent, timeout = 5)
             content = response.text
+            self.cookies = response.cookies
             if response.status_code == 200 and "Not Found" not in content and "errcode" not in content and "Forbidden" not in content and "Unauthorized" not in content and "Bad Request" not in content:
                 return f"{content}"
             else:
@@ -37,7 +40,7 @@ class AccessCheckService:
         
 # 示例用法
 if __name__ == "__main__":
-    
+    from multiprocessServiceOptimized import MultiProcessService
     domain_list = ["www.baidu.com", "www.google.com", "www.bing.com"]
     def domain_check(target):
         result = AccessCheckService(target)
