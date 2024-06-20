@@ -11,16 +11,20 @@ class AccessCheckService:
         使用url访问检测
         '''
         import requests
-        
+        headers = {
+            "User-Agent": self.user_agent,
+            "Cookie": self.cookies
+        }
         try:
-            response = requests.get(self.target, headers=self.user_agent, timeout = 5)
+            response = requests.get(self.target, headers=headers, timeout = 5)
             content = response.text
             self.cookies = response.cookies
             if response.status_code == 200 and "Not Found" not in content and "errcode" not in content and "Forbidden" not in content and "Unauthorized" not in content and "Bad Request" not in content:
                 return f"{content}"
             else:
                 return None
-        except:
+        except Exception as e:
+            #print(e)
             return None
     def check_access(self):
         '''
@@ -46,9 +50,9 @@ class AccessCheckService:
             if content is None:
                 pass
             else:
-                return f"https://{self.target}"
+                return f"{self.target}"
         else:
-            return f"http://{self.target}"
+            return f"{self.target}"
 
 # 示例用法
 if __name__ == "__main__":
@@ -73,4 +77,15 @@ if __name__ == "__main__":
         result = AccessCheckService(target)
         return result.access_service()
     result = MultiProcessService(url_check, url_list).execute()
+    print(result)
+
+    url_list = ["www.baidu.com", "www.google.com", "www.bing.com"]
+    def urls_maker(target):
+        """发送 HTTP或HTTPS 请求。
+        :param target: 要请求的URL链接。
+        :return: 提取到的网站页面信息。
+        """
+        result = AccessCheckService(target)
+        return result.maker_urls()
+    result = MultiProcessService(urls_maker, url_list).execute()
     print(result)
