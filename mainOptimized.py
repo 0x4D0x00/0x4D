@@ -22,7 +22,7 @@ class NetworkOperations:
         self.ping_service = PingService()
         self.nslookup_service = NslookupService()
         self.refresh_service = RefreshDNSService()
-        self.book_make = BookMarkService()
+        self.book_mark_service = BookMarkService()
         self.domain_list = self.read_write_service.read_txt()
         self.abnormal_hosts_list = []
         self.normal_hosts_list = []
@@ -65,13 +65,6 @@ class NetworkOperations:
         """
         result = AccessCheckService(target)
         return result.check_access()
-    def book_mark(self, url):
-        """发送 HTTP或HTTPS 请求。
-        :param target: 要请求的URL链接。
-        :return: 提取到的网站页面信息。
-        """
-        result = BookMarkService()
-        return result.write_book_mark(url)
     def get_domain(self, information_str):
         """从信息字符串中提取 DOMAIN 地址。
         :param information_str: 包含 DOMAIN 地址的信息字符串。
@@ -134,7 +127,7 @@ class NetworkOperations:
                 self.retrieval_ips_domains(f"{new_domain}", f"{domain}")
             else:
                 if f"{ip_address} {domain}" not in self.abnormal_hosts_list and "None" not in f"{ip_address} {domain}":
-                                self.abnormal_hosts_list.append(f"{ip_address} {domain}")
+                    self.abnormal_hosts_list.append(f"{ip_address} {domain}")
         except Exception as e:
             if f"{ip_address} {domain}" not in self.abnormal_hosts_list and "None" not in f"{ip_address} {domain}":
                 self.abnormal_hosts_list.append(f"{ip_address} {domain}")
@@ -209,11 +202,11 @@ class NetworkOperations:
         print("验证重构域名...")
         MultiProcessService(self.bypass_retrieval, self.bypass_retrieval_List).execute()
         print("尝试验证可能绕过的域名")
-        for ip_domain in self.normal_hosts_list:
-            ip, domain = ip_domain.split(" ")
-            self.access_list.append(domain)
-        original_info_list = MultiProcessService(self.domain_check, self.access_list).execute()
         if len(self.normal_hosts_list) >0:
+            for ip_domain in self.normal_hosts_list:
+                ip, domain = ip_domain.split(" ")
+                self.access_list.append(domain)
+            original_info_list = MultiProcessService(self.domain_check, self.access_list).execute()
             try:
                 ReadWriteService("C:\\Windows\\System32\\drivers\\etc\\hosts").write_txt(self.normal_hosts_list)
             except:
@@ -238,7 +231,7 @@ class NetworkOperations:
             if domain != "None" and domain is not None:
                 self.book_mark_list.append(f"{domain}")
         print("书签生成中...")
-        MultiProcessService(self.book_mark, self.book_mark_list).execute
+        self.book_mark_service.write_book_mark(self.book_mark_list)
         print("输出结果...")
         print("无法绕过cname域名数量: ", len(self.abnormal_hosts_list))
         print("已绕过cname域名数量: ", len(self.normal_hosts_list))
