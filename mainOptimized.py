@@ -11,6 +11,7 @@ from nslookupServiceOptimized import NslookupService
 from multiprocessServiceOptimized import MultiProcessService
 from accesscheckServiceOptimized import AccessCheckService
 from refreshdnsServiceOptimized import RefreshDNSService
+from bookMarkServiceOptimized import BookMarkService
 
 class NetworkOperations:
     def __init__(self, domain_list_file):
@@ -28,6 +29,7 @@ class NetworkOperations:
         self.bypass_retrieval_List = []
         self.access_list = []
         self.bypass_domain_list = []
+        self.book_mark_list = []
 
     def ping_ip_domain(self, ip_domain):
         """发送 ping 命令到指定的 IP 或域名。
@@ -225,11 +227,20 @@ class NetworkOperations:
                 if "None" in new_info_list[i]:
                     self.normal_hosts_list.remove(host)
                     self.abnormal_hosts_list.append(host)
+        for host in self.normal_hosts_list:
+            if host not in hosts_list:
+                hosts_list.append(host)
+        for host in hosts_list:
+            ip, domain = host.split(" ")
+            self.book_mark_list.append(f"{domain}")
+        print("书签生成中...")
+        MultiProcessService(BookMarkService.write_book_mark, self.book_mark_list).execute
         print("输出结果...")
         print("无法绕过cname域名数量: ", len(self.abnormal_hosts_list))
         print("以绕过cname域名数量: ", len(self.normal_hosts_list))
         print("正常hosts数量: ", len(hosts_list))
         print("离线域名数量: ", len(self.off_line_list))
+        print("web正常访问数量: ", len(self.book_mark_list))
         ReadWriteService("cname_hosts.txt").write_txt(self.abnormal_hosts_list)
         ReadWriteService("C:\\Windows\\System32\\drivers\\etc\\hosts").write_txt(self.normal_hosts_list)
         
