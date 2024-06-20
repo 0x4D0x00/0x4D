@@ -31,14 +31,15 @@ class BookMarkService:
         Datetime = str(int(time.time()))
         head = [f'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     DO NOT EDIT! -->\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n    <DT><H3 ADD_DATE="2716597092" LAST_MODIFIED="0" PERSONAL_TOOLBAR_FOLDER="true">BOOK</H3>\n    <DL><p>\n    </DL><p>\n']
         ReadWriteService(self.book_mark_path).write_txt(head)
-        print(" | 主线任务进度 |")
+        #print(" | 主线任务进度 |")
         urls_list = MultiProcessService(self.domain_check, data_list).execute()
         MultiProcessService(write_body, urls_list).execute()
         ReadWriteService(self.book_mark_path, self.write_method).write_txt(self.body_list)
         dlp = ['</DL><p>\n']
         ReadWriteService(self.book_mark_path, self.write_method).write_txt(dlp)
-        print(" | 主线任务完成 |")
+        #print(" | 主线任务完成 |")
 
 if __name__ == "__main__":
-    BookMarkService().write_book_mark()
+    data_list=list(ReadWriteService("bookMark.txt").read_txt())
+    BookMarkService().write_book_mark(data_list)
 
