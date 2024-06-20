@@ -15,18 +15,19 @@ class BookMarkService:
         self.write_method = write_method
         self.new_ips_domains_list = []
         self.body_list = []
-    def domain_check(target):
+    def domain_check(self, target):
         """发送 HTTP或HTTPS 请求。
         :param target: 要请求的域名。
         :return: 提取到的网站页面信息。
         """
         result = AccessCheckService(target)
         return result.maker_urls()
-    def write_book_mark(self, data_list=ReadWriteService("bookMark.txt").read_txt()):
+    def write_book_mark(self, data_list=list(ReadWriteService("bookMark.txt").read_txt())):
         def write_body(url):
-            body = f'	<DT><A HREF="{url}" ADD_DATE={Datetime}">{url}</A>\n'
-            if body not in self.body_list:
-                self.body_list.append(body)
+            if url is not None:
+                body = f'	<DT><A HREF="{url}" ADD_DATE={Datetime}">{url}</A>\n'
+                if body not in self.body_list:
+                    self.body_list.append(body)
         Datetime = str(int(time.time()))
         head = [f'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     DO NOT EDIT! -->\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n    <DT><H3 ADD_DATE="2716597092" LAST_MODIFIED="0" PERSONAL_TOOLBAR_FOLDER="true">BOOK</H3>\n    <DL><p>\n    </DL><p>\n']
         ReadWriteService(self.book_mark_path).write_txt(head)
