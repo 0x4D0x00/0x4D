@@ -22,6 +22,7 @@ class NetworkOperations:
         self.ping_service = PingService()
         self.nslookup_service = NslookupService()
         self.refresh_service = RefreshDNSService()
+        self.book_make = BookMarkService()
         self.domain_list = self.read_write_service.read_txt()
         self.abnormal_hosts_list = []
         self.normal_hosts_list = []
@@ -57,20 +58,20 @@ class NetworkOperations:
         """
         ip_extractor = IPExtractor(information_str)
         return ip_extractor.extract_ip()
-    def domain_check(target):
+    def domain_check(self, target):
         """发送 HTTP或HTTPS 请求。
         :param target: 要请求的域名。
         :return: 提取到的网站页面信息。
         """
         result = AccessCheckService(target)
         return result.check_access()
-    def url_check(target):
+    def book_mark(self, url):
         """发送 HTTP或HTTPS 请求。
         :param target: 要请求的URL链接。
         :return: 提取到的网站页面信息。
         """
-        result = AccessCheckService(target)
-        return result.access_service()
+        result = BookMarkService()
+        return result.write_book_mark(url)
     def get_domain(self, information_str):
         """从信息字符串中提取 DOMAIN 地址。
         :param information_str: 包含 DOMAIN 地址的信息字符串。
@@ -102,17 +103,17 @@ class NetworkOperations:
                     real_domain = re.findall(r'名称:\s+(\S+)', nslookup_data)[0]
                     if f"{ip_domain}" != real_domain and f"{ip_address}" in nslookup_data:
                         if old_domain is not None:
-                            if f"{ip_address} {old_domain}" not in self.abnormal_hosts_list:
+                            if f"{ip_address} {old_domain}" not in self.abnormal_hosts_list and "None" not in f"{ip_address} {old_domain}":
                                 self.abnormal_hosts_list.append(f"{ip_address} {old_domain}")
                         else:
-                            if f"{ip_address} {ip_domain}" not in self.abnormal_hosts_list:
+                            if f"{ip_address} {ip_domain}" not in self.abnormal_hosts_list and "None" not in f"{ip_address} {ip_domain}":
                                 self.abnormal_hosts_list.append(f"{ip_address} {ip_domain}")
                     else:
                         if old_domain is not None:
-                            if f"{ip_address} {ip_domain}" not in self.normal_hosts_list:
+                            if f"{ip_address} {ip_domain}" not in self.normal_hosts_list and "None" not in f"{ip_address} {ip_domain}":
                                 self.normal_hosts_list.append(f"{ip_address} {old_domain} {ip_domain}")
                         else:
-                            if f"{ip_address} {ip_domain}" not in self.normal_hosts_list:
+                            if f"{ip_address} {ip_domain}" not in self.normal_hosts_list and "None" not in f"{ip_address} {ip_domain}":
                                 self.normal_hosts_list.append(f"{ip_address} {ip_domain}")
             else:
                 if f"{just_ip}" not in self.off_line_list:
@@ -132,10 +133,10 @@ class NetworkOperations:
             if new_domain != domain:
                 self.retrieval_ips_domains(f"{new_domain}", f"{domain}")
             else:
-                if f"{ip_address} {domain}" not in self.abnormal_hosts_list:
+                if f"{ip_address} {domain}" not in self.abnormal_hosts_list and "None" not in f"{ip_address} {domain}":
                                 self.abnormal_hosts_list.append(f"{ip_address} {domain}")
         except Exception as e:
-            if f"{ip_address} {domain}" not in self.abnormal_hosts_list:
+            if f"{ip_address} {domain}" not in self.abnormal_hosts_list and "None" not in f"{ip_address} {domain}":
                 self.abnormal_hosts_list.append(f"{ip_address} {domain}")
             print(e)
     def domain_name_reconstruction(self, information_str):
@@ -145,7 +146,7 @@ class NetworkOperations:
             例如: baidu.com 拼接为 www.baidu.com
             '''
             new_domain = f"{domain_name}" + "." + f"{domain}"
-            if f"{ip} {domain} {new_domain}" not in self.bypass_retrieval_List:
+            if f"{ip} {domain} {new_domain}" not in self.bypass_retrieval_List and "None" not in f"{ip} {domain} {new_domain}":
                 self.bypass_retrieval_List.append(f"{ip} {domain} {new_domain}")
         '''
         尝试重构域名函数
@@ -174,19 +175,20 @@ class NetworkOperations:
                     if cname_ip_segment != new_ip_segment and "名称:" in nslookup_data:
                         real_domain = re.findall(r'名称:\s+(\S+)', nslookup_data)[0]
                         if f"{new_domain}" != real_domain and f"{new_ip}" in nslookup_data:
-                            if f"{ip} {domain}" not in self.abnormal_hosts_list:
+                            if f"{ip} {domain}" not in self.abnormal_hosts_list and "None" not in f"{ip} {domain}":
                                 self.abnormal_hosts_list.append(f"{ip} {domain}")
                         else:
-                            if f"{new_ip} {domain}" not in self.normal_hosts_list:
+                            if f"{new_ip} {domain}" not in self.normal_hosts_list and "None" not in f"{new_ip} {domain}":
                                 self.normal_hosts_list.append(f"{new_ip} {domain}")
                     else:
-                        if f"{ip} {domain}" not in self.abnormal_hosts_list:
+                        if f"{ip} {domain}" not in self.abnormal_hosts_list and "None" not in f"{ip} {domain}":
                             self.abnormal_hosts_list.append(f"{ip} {domain}")
         except:
-            if f"{ip} {domain}" not in self.abnormal_hosts_list:
+            if f"{ip} {domain}" not in self.abnormal_hosts_list and "None" not in f"{ip} {domain}":
                 self.abnormal_hosts_list.append(f"{ip} {domain}")
     def perform_network_operations(self):
-        """执行网络操作，包括 ping 域名并提取 IP 地址，处理 CNAME 和非 CNAME 的情况。
+        """
+        执行网络操作，包括 ping 域名并提取 IP 地址，处理 CNAME 和非 CNAME 的情况。
         """
         domain_list = self.domain_list
         print("检索 IP 地址和域名...")
@@ -211,33 +213,35 @@ class NetworkOperations:
             ip, domain = ip_domain.split(" ")
             self.access_list.append(domain)
         original_info_list = MultiProcessService(self.domain_check, self.access_list).execute()
-        try:
-            ReadWriteService("C:\\Windows\\System32\\drivers\\etc\\hosts").write_txt(self.normal_hosts_list)
-        except:
-            ReadWriteService("hosts").write_txt(self.normal_hosts_list)
-            input("hosts文件写入失败,请手动写入hosts文件并输入任意键继续...")
-            pass
-        print("尝试DNS刷新: ",self.refresh_dns())
-        new_info_list = MultiProcessService(self.domain_check, self.access_list).execute()
-        for i in range(len(new_info_list)):
-            for host in self.normal_hosts_list:
-                if original_info_list[i] != new_info_list[i]: 
-                    self.normal_hosts_list.remove(host)
-                    self.abnormal_hosts_list.append(host)
-                if "None" in new_info_list[i]:
-                    self.normal_hosts_list.remove(host)
-                    self.abnormal_hosts_list.append(host)
+        if len(self.normal_hosts_list) >0:
+            try:
+                ReadWriteService("C:\\Windows\\System32\\drivers\\etc\\hosts").write_txt(self.normal_hosts_list)
+            except:
+                ReadWriteService("hosts").write_txt(self.normal_hosts_list)
+                input("hosts文件写入失败,请手动写入hosts文件并输入任意键继续...")
+                pass
+            print("尝试DNS刷新: ",self.refresh_dns())
+            new_info_list = MultiProcessService(self.domain_check, self.access_list).execute()
+            for i in range(len(new_info_list)):
+                for host in self.normal_hosts_list:
+                    if original_info_list[i] != new_info_list[i]: 
+                        self.normal_hosts_list.remove(host)
+                        self.abnormal_hosts_list.append(host)
+                    if "None" in new_info_list[i]:
+                        self.normal_hosts_list.remove(host)
+                        self.abnormal_hosts_list.append(host)
         for host in self.normal_hosts_list:
-            if host not in hosts_list:
+            if host not in hosts_list and "None" not in host:
                 hosts_list.append(host)
         for host in hosts_list:
             ip, domain = host.split(" ")
-            self.book_mark_list.append(f"{domain}")
+            if domain != "None" and domain is not None:
+                self.book_mark_list.append(f"{domain}")
         print("书签生成中...")
-        MultiProcessService(BookMarkService.write_book_mark, self.book_mark_list).execute
+        MultiProcessService(self.book_mark, self.book_mark_list).execute
         print("输出结果...")
         print("无法绕过cname域名数量: ", len(self.abnormal_hosts_list))
-        print("以绕过cname域名数量: ", len(self.normal_hosts_list))
+        print("已绕过cname域名数量: ", len(self.normal_hosts_list))
         print("正常hosts数量: ", len(hosts_list))
         print("离线域名数量: ", len(self.off_line_list))
         print("web正常访问数量: ", len(self.book_mark_list))
